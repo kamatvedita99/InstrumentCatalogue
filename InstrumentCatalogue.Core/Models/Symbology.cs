@@ -7,6 +7,5 @@ public class Symbology
     public string Description { get; set; } = string.Empty;
     public bool IsActive { get; set; } = true;
     public DateTime CreatedAtUtc { get; set; }
-
     public DateTime LastUpdatedAtUtc { get;  set; }
 }

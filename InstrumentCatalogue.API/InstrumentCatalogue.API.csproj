@@ -17,4 +17,9 @@
     <ProjectReference Include="..\InstrumentCatalogue.Infrastructure\InstrumentCatalogue.Infrastructure.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Middleware\" />
+    <Folder Include="Extensions\" />
+  </ItemGroup>
+
 </Project>

@@ -15,4 +15,11 @@
     <ProjectReference Include="..\InstrumentCatalogue.Core\InstrumentCatalogue.Core.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="DTOs\" />
+    <Folder Include="Mappers\" />
+    <Folder Include="Validators\" />
+    <Folder Include="Services\" />
+  </ItemGroup>
+
 </Project>
