@@ -1,16 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿namespace InstrumentCatalogue.Core.Enums;
 
-namespace InstrumentCatalogue.Core.Enums
+public enum InstrumentStatus
 {
-    public enum InstrumentStatus
-    {
-        Active,
-        Suspended,
-        Delisted,
-        Pending
-    }
+    Active,
+    Suspended,
+    Delisted,
+    Pending
 }

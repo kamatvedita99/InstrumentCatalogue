@@ -1,17 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿namespace InstrumentCatalogue.Core.Enums;
 
-namespace InstrumentCatalogue.Core.Enums
+public enum InstrumentType
 {
-    public enum InstrumentType
-    {
-        Equity,
+    Equity,
 
-        ETF,
+    ETF,
 
-        Bond
-    }
+    Bond
 }
