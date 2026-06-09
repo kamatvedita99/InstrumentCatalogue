@@ -19,8 +19,8 @@ public class VendorInterface
     public DateTime LastUpdatedAtUtc { get; set; }
 
     //navigation properties
-    public Vendor? Vendor { get; set; } = null!;
+    public Vendor Vendor { get; set; } = null!;
 
-    public ICollection<SymbolXRef> Symbols { get; set; } = new List<SymbolXRef>();
+    public ICollection<VendorInterfaceSymbolXRef> SymbolXRefs { get; set; } = new List<VendorInterfaceSymbolXRef>();
 
 }

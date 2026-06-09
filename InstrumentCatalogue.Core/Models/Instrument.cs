@@ -32,7 +32,7 @@ namespace InstrumentCatalogue.Core.Models;
 
         public ICollection<SymbolXRef> Symbols { get; set; } = new List<SymbolXRef>();
 
-        public ICollection<InstrumentStatusHistory> InstrumentStatusHistory { get; set; } = new List<InstrumentStatusHistory>();
+        public ICollection<InstrumentStatusHistory> StatusHistory { get; set; } = new List<InstrumentStatusHistory>();
 
 
     }
