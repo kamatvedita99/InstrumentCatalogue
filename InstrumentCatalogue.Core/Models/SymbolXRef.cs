@@ -25,4 +25,6 @@ public class SymbolXRef
 
     public Symbology Symbology { get; set; } = null!;
 
+    public ICollection<VendorInterfaceSymbolXRef> VendorInterfaceSymbols { get; set; } = new List<VendorInterfaceSymbolXRef>();
+
 }

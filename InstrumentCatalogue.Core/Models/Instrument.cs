@@ -30,6 +30,10 @@ namespace InstrumentCatalogue.Core.Models;
 
         public EtfRefData? EtfRefData { get; set; }
 
+        public ICollection<SymbolXRef> Symbols { get; set; } = new List<SymbolXRef>();
+
+        public ICollection<InstrumentStatusHistory> InstrumentStatusHistory { get; set; } = new List<InstrumentStatusHistory>();
+
 
     }
 

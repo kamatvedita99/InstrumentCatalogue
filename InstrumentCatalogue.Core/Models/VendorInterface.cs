@@ -21,4 +21,6 @@ public class VendorInterface
     //navigation properties
     public Vendor? Vendor { get; set; } = null!;
 
+    public ICollection<SymbolXRef> Symbols { get; set; } = new List<SymbolXRef>();
+
 }
