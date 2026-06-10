@@ -1,21 +1,14 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿namespace InstrumentCatalogue.Core.Enums;
 
-namespace InstrumentCatalogue.Core.Enums
+public enum EtfDistributionFrequency
 {
-    public enum EtfDistributionFrequency
-    {
-        Monthly,
+    Monthly,
 
-        Quarterly,
+    Quarterly,
 
-        Annual,
+    Annual,
 
-        SemiAnnual,
+    SemiAnnual,
 
-        None
-    }
+    None
 }

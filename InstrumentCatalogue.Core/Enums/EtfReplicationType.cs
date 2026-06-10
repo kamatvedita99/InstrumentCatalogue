@@ -1,18 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿namespace InstrumentCatalogue.Core.Enums;
 
-namespace InstrumentCatalogue.Core.Enums
+public enum EtfReplicationType
 {
-    public enum EtfReplicationType
-    {
-        Physical,
+    Physical,
 
-        Synthetic,
+    Synthetic,
 
-        Sampling
+    Sampling
 
-    }
 }
