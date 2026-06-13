@@ -31,9 +31,4 @@ public class CatalogueDbContext: DbContext
         modelBuilder.ApplyConfigurationsFromAssembly(typeof(CatalogueDbContext).Assembly);
     }
 
-    protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-    {
-        optionsBuilder.UseSnakeCaseNamingConvention();
-    }
-
 }
