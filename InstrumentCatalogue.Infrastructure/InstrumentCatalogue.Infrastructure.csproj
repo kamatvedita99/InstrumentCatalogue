@@ -22,8 +22,4 @@
     <ProjectReference Include="..\InstrumentCatalogue.Core\InstrumentCatalogue.Core.csproj" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="Repositories\" />
-  </ItemGroup>
-
 </Project>

@@ -484,4 +484,4 @@ $RECYCLE.BIN/
 *.swp
 InstrumentCatalogue.API/appsettings.Production.json
 InstrumentCatalogue.API/appsettings.Development.json
-InstrumentCatalogue.API/appsettings.Development.json
+
