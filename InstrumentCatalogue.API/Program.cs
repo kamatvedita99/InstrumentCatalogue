@@ -3,6 +3,8 @@ using InstrumentCatalogue.Core.Interfaces;
 using InstrumentCatalogue.Infrastructure.Persistence;
 using InstrumentCatalogue.Infrastructure.Repositories;
 using Microsoft.EntityFrameworkCore;
+using Npgsql;
+using System.Data;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -15,6 +17,11 @@ builder.Services.AddSwaggerGen();
 
 builder.Services.AddDbContext<CatalogueDbContext>(options => options.UseNpgsql(
     builder.Configuration.GetConnectionString("DefaultConnection")).UseSnakeCaseNamingConvention());
+
+builder.Services.AddScoped<IDbConnection>(sp =>
+    new NpgsqlConnection(
+        builder.Configuration.GetConnectionString("DefaultConnection")));
+Dapper.DefaultTypeMap.MatchNamesWithUnderscores = true;
 
 builder.Services.AddScoped<IVendorRepository, VendorRepository>();
 builder.Services.AddScoped<IVendorService, VendorService>();

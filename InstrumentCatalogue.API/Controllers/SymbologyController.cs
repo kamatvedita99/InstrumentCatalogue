@@ -17,7 +17,7 @@ public class SymbologyController: ControllerBase
     }
 
     [HttpPost]
-    public async Task<ActionResult<Symbology>> CreateSymbologyAsync([FromBody] CreateSymbologyRequest symbologyRequest, CancellationToken cancellationToken = default)
+    public async Task<ActionResult<SymbologyResponse>> CreateSymbologyAsync([FromBody] CreateSymbologyRequest symbologyRequest, CancellationToken cancellationToken = default)
     {
        var response = await _symbologyService.CreateSymbologyAsync(symbologyRequest, cancellationToken);
         return Created(string.Empty, response);

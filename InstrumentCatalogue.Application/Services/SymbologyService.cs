@@ -15,7 +15,7 @@ public class SymbologyService : ISymbologyService
 
     public async Task<SymbologyResponse> CreateSymbologyAsync(CreateSymbologyRequest request, CancellationToken cancellationToken=default)
     {
-        ArgumentNullException.ThrowIfNull(nameof(request));
+        ArgumentNullException.ThrowIfNull(request);
         var symbology = SymbologyMapper.ToDomain(request);
         await _symbologyRepository.CreateSymbologyAsync(symbology, cancellationToken);
         return SymbologyMapper.ToResponse(symbology);
