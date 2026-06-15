@@ -1,6 +1,7 @@
 ﻿using InstrumentCatalogue.Application.DTOs;
 using InstrumentCatalogue.Application.Mappers;
 using InstrumentCatalogue.Core.Interfaces;
+using InstrumentCatalogue.Core.Models;
 
 namespace InstrumentCatalogue.Application.Services;
 
@@ -35,5 +36,27 @@ public class VendorService : IVendorService
     {
         var vendorList = await _vendorRepository.GetVendorsAsync(cancellationToken);
         return vendorList.Select(v => VendorMapper.ToResponse(v)).ToList();
+    }
+
+    public async Task<VendorResponse?> UpdateVendorAsync(int vendorId, UpdateVendorRequest vendorUpdateRequest, CancellationToken cancellationToken)
+    {
+        var vendor = await _vendorRepository.GetVendorByIdAsync(vendorId, cancellationToken);
+
+        if(vendor == null)
+            return null;
+
+        if (!string.IsNullOrWhiteSpace(vendorUpdateRequest.Name))
+            vendor.Name = vendorUpdateRequest.Name;
+
+        if (vendorUpdateRequest.IsActive.HasValue)
+            vendor.IsActive = vendorUpdateRequest.IsActive.Value;
+
+        vendor.LastUpdatedAtUtc = DateTime.UtcNow;
+
+        await _vendorRepository.UpdateVendorAsync(vendor, cancellationToken);
+
+        return VendorMapper.ToResponse(vendor);
+
+
     }
 }

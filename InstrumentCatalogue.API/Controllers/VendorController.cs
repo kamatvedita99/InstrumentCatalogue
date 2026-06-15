@@ -49,6 +49,19 @@ namespace InstrumentCatalogue.API.Controllers
 
         }
 
+        [HttpPatch]
+        [Route("{id}")]
+        public async Task<ActionResult<VendorResponse>> UpdateVendorAsync(int id, [FromBody] UpdateVendorRequest request, CancellationToken cancellationToken = default)
+        {
+           var vendorResponse = await _vendorService.UpdateVendorAsync(id, request, cancellationToken);
+
+            if(vendorResponse == null)
+                return NotFound();
+
+            return Ok(vendorResponse);
+
+        }
+
 
     }
 }

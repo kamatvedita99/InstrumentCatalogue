@@ -57,7 +57,7 @@ public class VendorRepository : IVendorRepository
     public async Task<ICollection<Vendor>> GetVendorsAsync(CancellationToken cancellationToken = default)
     {
         var command = new CommandDefinition(
-            commandText: "SELECT vendor_id, name, short_code, is_active from vendors;",
+            commandText: "SELECT vendor_id, name, short_code, is_active, created_at_utc, last_updated_at_utc from vendors;",
             parameters: null,
             cancellationToken: cancellationToken
             );
@@ -66,9 +66,13 @@ public class VendorRepository : IVendorRepository
 
     }
 
-    public Task UpdateVendorAsync(Vendor vendor, CancellationToken cancellationToken = default)
+    public async Task UpdateVendorAsync(Vendor vendor, CancellationToken cancellationToken = default)
     {
-        throw new NotImplementedException();
+        ArgumentNullException.ThrowIfNull(vendor);
+
+        _dbContext.Update(vendor);
+        await _dbContext.SaveChangesAsync(cancellationToken);
+        
     }
 
     public Task UpdateVendorInterfaceAsync(VendorInterface vendorInterface, CancellationToken cancellationToken = default)
