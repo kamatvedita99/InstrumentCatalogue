@@ -36,7 +36,7 @@ public class VendorRepository : IVendorRepository
     public async Task<Vendor?> GetVendorByIdAsync(int vendorId, CancellationToken cancellationToken = default)
     {
         var command = new CommandDefinition(
-            commandText: "SELECT vendor_id, name, short_code, is_active from vendors where vendor_id = @vendor_id ",
+            commandText: "SELECT vendor_id, name, short_code, is_active, created_at_utc, last_updated_at_utc from vendors where vendor_id = @vendor_id ",
             parameters: new { vendor_id = vendorId },
             cancellationToken: cancellationToken
             );
