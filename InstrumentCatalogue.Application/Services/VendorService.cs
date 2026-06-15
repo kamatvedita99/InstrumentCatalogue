@@ -23,7 +23,7 @@ public class VendorService : IVendorService
 
     }
 
-    public async Task<VendorResponse?> GetVendorByIdAsync(int vendorId, CancellationToken cancellationToken)
+    public async Task<VendorResponse?> GetVendorByIdAsync(int vendorId, CancellationToken cancellationToken = default)
     {
        var vendor = await _vendorRepository.GetVendorByIdAsync(vendorId, cancellationToken);
        if(vendor == null) 
@@ -32,13 +32,13 @@ public class VendorService : IVendorService
         return VendorMapper.ToResponse(vendor);
     }
 
-    public async Task<ICollection<VendorResponse>> GetVendorsAsync(CancellationToken cancellationToken)
+    public async Task<ICollection<VendorResponse>> GetVendorsAsync(CancellationToken cancellationToken = default)
     {
         var vendorList = await _vendorRepository.GetVendorsAsync(cancellationToken);
         return vendorList.Select(v => VendorMapper.ToResponse(v)).ToList();
     }
 
-    public async Task<VendorResponse?> UpdateVendorAsync(int vendorId, UpdateVendorRequest vendorUpdateRequest, CancellationToken cancellationToken)
+    public async Task<VendorResponse?> UpdateVendorAsync(int vendorId, UpdateVendorRequest vendorUpdateRequest, CancellationToken cancellationToken = default)
     {
         var vendor = await _vendorRepository.GetVendorByIdAsync(vendorId, cancellationToken);
 
