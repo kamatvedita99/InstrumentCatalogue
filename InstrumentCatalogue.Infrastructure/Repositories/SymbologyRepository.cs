@@ -1,16 +1,21 @@
-﻿using InstrumentCatalogue.Core.Common;
+﻿using Dapper;
+using InstrumentCatalogue.Core.Common;
 using InstrumentCatalogue.Core.Interfaces;
 using InstrumentCatalogue.Core.Models;
 using InstrumentCatalogue.Infrastructure.Persistence;
+using System.Data;
 
 namespace InstrumentCatalogue.Infrastructure.Repositories;
 
 public class SymbologyRepository : ISymbologyRepository
 {
     private readonly CatalogueDbContext _dbContext;
-    public SymbologyRepository(CatalogueDbContext dbContext)
+
+    private readonly IDbConnection _dbConnection;
+    public SymbologyRepository(CatalogueDbContext dbContext, IDbConnection dbConnection)
     {
         _dbContext = dbContext ?? throw new ArgumentNullException(nameof(dbContext));
+        _dbConnection = dbConnection ?? throw new ArgumentNullException(nameof(_dbConnection));
     }
     public Task<Guid> CreateSymbolAsync(SymbolXRef symbolXRef, CancellationToken cancellationToken = default)
     {
@@ -35,9 +40,17 @@ public class SymbologyRepository : ISymbologyRepository
         throw new NotImplementedException();
     }
 
-    public Task<ICollection<Symbology>> GetSymbologiesAsync(CancellationToken cancellationToken = default)
+    public async Task<ICollection<Symbology>> GetSymbologiesAsync(CancellationToken cancellationToken = default)
     {
-        throw new NotImplementedException();
+        var command = new CommandDefinition(
+
+            commandText: "SELECT symbology_id, type_code, description, is_active, created_at_utc, last_updated_at_utc from symbologies;",
+            parameters: null,
+            cancellationToken: cancellationToken
+
+            );
+        var symbologies = await _dbConnection.QueryAsync<Symbology>(command);
+        return symbologies.ToList();
     }
 
     public Task<Symbology?> GetSymbologyByIdAsync(int symbologyId, CancellationToken cancellationToken = default)

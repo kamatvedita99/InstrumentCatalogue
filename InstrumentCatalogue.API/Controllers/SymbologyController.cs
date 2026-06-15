@@ -22,4 +22,13 @@ public class SymbologyController: ControllerBase
        var response = await _symbologyService.CreateSymbologyAsync(symbologyRequest, cancellationToken);
         return Created(string.Empty, response);
     }
+
+    [HttpGet]
+    public async Task<ActionResult<ICollection<SymbologyResponse>>> GetSymbologiesAsync(CancellationToken cancellationToken = default)
+    {
+        var response = await _symbologyService.GetSymbologiesAsync(cancellationToken);
+        return Ok(response);
+
+    }
+
 }
