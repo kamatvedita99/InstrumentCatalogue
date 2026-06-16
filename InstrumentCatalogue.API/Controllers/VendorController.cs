@@ -1,5 +1,6 @@
 ﻿using InstrumentCatalogue.Application.DTOs;
 using InstrumentCatalogue.Application.Services;
+using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 using System.Threading;
 
@@ -61,6 +62,34 @@ namespace InstrumentCatalogue.API.Controllers
             return Ok(vendorResponse);
 
         }
+
+        [HttpPost]
+        [Route("{vendorId}/interfaces")]
+        public async Task<ActionResult<VendorInterfaceResponse>> CreateVendorInterfaceAsync(int vendorId, [FromBody] CreateVendorInterfaceRequest request, CancellationToken cancellationToken = default )
+        {
+            var vendorInterfaceResponse = await _vendorService.CreateVendorInterfaceAsync(vendorId, request, cancellationToken);
+            return Created(string.Empty, vendorInterfaceResponse);
+        }
+
+        [HttpGet]
+        [Route("{vendorId}/interfaces")]
+        public async Task<ActionResult<ICollection<VendorInterfaceResponse>>> GetVendorInterfacesAsync(int vendorId, CancellationToken cancellationToken = default)
+        {
+          var vendorInterfaces = await _vendorService.GetVendorInterfacesAsync(vendorId, cancellationToken);
+           return Ok(vendorInterfaces);
+        }
+
+        [HttpGet]
+        [Route("interfaces/{id}")]
+        public async Task<ActionResult<VendorInterfaceResponse?>> GetVendorInterfaceByIdAsync(int id, CancellationToken cancellationToken = default)
+        {
+           var vendorInterfaceResponse = await _vendorService.GetVendorInterfaceByIdAsync(id, cancellationToken);
+
+            if( vendorInterfaceResponse == null) return NotFound();
+
+            return Ok(vendorInterfaceResponse);
+        }
+
 
 
     }

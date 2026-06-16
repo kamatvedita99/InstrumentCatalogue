@@ -28,9 +28,13 @@ public class VendorRepository : IVendorRepository
         return vendor.VendorId;
     }
 
-    public Task<int> CreateVendorInterfaceAsync(VendorInterface vendorInterface, CancellationToken cancellationToken = default)
+    public async Task<int> CreateVendorInterfaceAsync(VendorInterface vendorInterface, CancellationToken cancellationToken = default)
     {
-        throw new NotImplementedException();
+        ArgumentNullException.ThrowIfNull(vendorInterface);
+        await _dbContext.AddAsync(vendorInterface, cancellationToken);
+        await _dbContext.SaveChangesAsync(cancellationToken);
+
+        return vendorInterface.VendorInterfaceId;
     }
 
     public async Task<Vendor?> GetVendorByIdAsync(int vendorId, CancellationToken cancellationToken = default)
@@ -44,14 +48,29 @@ public class VendorRepository : IVendorRepository
         return vendor;
     }
 
-    public Task<VendorInterface?> GetVendorInterfaceByIdAsync(int vendorInterfaceId, CancellationToken cancellationToken = default)
+    public async Task<VendorInterface?> GetVendorInterfaceByIdAsync(int vendorInterfaceId, CancellationToken cancellationToken = default)
     {
-        throw new NotImplementedException();
+        var command = new CommandDefinition(
+
+            commandText: "SELECT vendor_interface_id, vendor_id, name, description, protocol, is_active, created_at_utc, last_updated_at_utc from vendor_interfaces where vendor_interface_id = @vendor_interface_id;", 
+            parameters: new { vendor_interface_id = vendorInterfaceId },
+            cancellationToken: cancellationToken
+            );
+
+       return await  _connection.QueryFirstOrDefaultAsync<VendorInterface?>(command);
     }
 
-    public Task<ICollection<VendorInterface>> GetVendorInterfacesAsync(int vendorId, CancellationToken cancellationToken = default)
+    public async Task<ICollection<VendorInterface>> GetVendorInterfacesAsync(int vendorId, CancellationToken cancellationToken = default)
     {
-        throw new NotImplementedException();
+        var command = new CommandDefinition(
+
+            commandText: "SELECT vendor_interface_id, vendor_id, name, description, protocol, is_active, created_at_utc, last_updated_at_utc from vendor_interfaces where vendor_id = @vendor_id",
+            parameters: new { vendor_id = vendorId },
+            cancellationToken: cancellationToken
+            );
+
+        var vendorInterfaces =  await _connection.QueryAsync<VendorInterface>(command);
+        return vendorInterfaces.ToList();
     }
 
     public async Task<ICollection<Vendor>> GetVendorsAsync(CancellationToken cancellationToken = default)
@@ -75,8 +94,11 @@ public class VendorRepository : IVendorRepository
         
     }
 
-    public Task UpdateVendorInterfaceAsync(VendorInterface vendorInterface, CancellationToken cancellationToken = default)
+    public async Task UpdateVendorInterfaceAsync(VendorInterface vendorInterface, CancellationToken cancellationToken = default)
     {
-        throw new NotImplementedException();
+        ArgumentNullException.ThrowIfNull(vendorInterface);
+        
+        _dbContext.Update(vendorInterface);
+        await _dbContext.SaveChangesAsync(cancellationToken);
     }
 }

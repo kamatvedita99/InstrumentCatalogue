@@ -23,6 +23,17 @@ public class VendorService : IVendorService
 
     }
 
+    public async Task<VendorInterfaceResponse> CreateVendorInterfaceAsync(int vendorId, CreateVendorInterfaceRequest request, CancellationToken cancellationToken = default)
+    {
+        ArgumentNullException.ThrowIfNull(request);
+
+        request.VendorId = vendorId;
+        var vendorInterface = VendorInterfaceMapper.ToDomain(request);
+        await _vendorRepository.CreateVendorInterfaceAsync(vendorInterface, cancellationToken);
+
+        return VendorInterfaceMapper.ToResponse(vendorInterface);
+    }
+
     public async Task<VendorResponse?> GetVendorByIdAsync(int vendorId, CancellationToken cancellationToken = default)
     {
        var vendor = await _vendorRepository.GetVendorByIdAsync(vendorId, cancellationToken);
@@ -32,10 +43,24 @@ public class VendorService : IVendorService
         return VendorMapper.ToResponse(vendor);
     }
 
+    public async Task<VendorInterfaceResponse?> GetVendorInterfaceByIdAsync(int vendorInterfaceId, CancellationToken cancellationToken = default)
+    {
+        var vendorInterface = await _vendorRepository.GetVendorInterfaceByIdAsync(vendorInterfaceId, cancellationToken);
+        if(vendorInterface == null) return null;
+
+        return VendorInterfaceMapper.ToResponse(vendorInterface);
+    }
+
+    public async Task<ICollection<VendorInterfaceResponse>> GetVendorInterfacesAsync(int vendorId, CancellationToken cancellationToken = default)
+    {
+        var vendorInterfacesList = await _vendorRepository.GetVendorInterfacesAsync(vendorId, cancellationToken);
+        return vendorInterfacesList.Select(VendorInterfaceMapper.ToResponse).ToList();
+    }
+
     public async Task<ICollection<VendorResponse>> GetVendorsAsync(CancellationToken cancellationToken = default)
     {
         var vendorList = await _vendorRepository.GetVendorsAsync(cancellationToken);
-        return vendorList.Select(v => VendorMapper.ToResponse(v)).ToList();
+        return vendorList.Select(VendorMapper.ToResponse).ToList();
     }
 
     public async Task<VendorResponse?> UpdateVendorAsync(int vendorId, UpdateVendorRequest vendorUpdateRequest, CancellationToken cancellationToken = default)
@@ -58,5 +83,10 @@ public class VendorService : IVendorService
         return VendorMapper.ToResponse(vendor);
 
 
+    }
+
+    public Task<VendorInterfaceResponse?> UpdateVendorInterfaceAsync(CancellationToken cancellationToken = default)
+    {
+        throw new NotImplementedException();
     }
 }
