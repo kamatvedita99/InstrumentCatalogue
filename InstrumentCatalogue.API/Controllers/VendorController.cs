@@ -80,8 +80,8 @@ namespace InstrumentCatalogue.API.Controllers
         }
 
         [HttpGet]
-        [Route("interfaces/{id}")]
-        public async Task<ActionResult<VendorInterfaceResponse?>> GetVendorInterfaceByIdAsync(int id, CancellationToken cancellationToken = default)
+        [Route("{vendorId}interfaces/{id}")]
+        public async Task<ActionResult<VendorInterfaceResponse?>> GetVendorInterfaceByIdAsync(int vendorId, int id, CancellationToken cancellationToken = default)
         {
            var vendorInterfaceResponse = await _vendorService.GetVendorInterfaceByIdAsync(id, cancellationToken);
 

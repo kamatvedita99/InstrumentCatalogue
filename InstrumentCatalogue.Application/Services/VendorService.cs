@@ -27,8 +27,7 @@ public class VendorService : IVendorService
     {
         ArgumentNullException.ThrowIfNull(request);
 
-        request.VendorId = vendorId;
-        var vendorInterface = VendorInterfaceMapper.ToDomain(request);
+        var vendorInterface = VendorInterfaceMapper.ToDomain(vendorId, request);
         await _vendorRepository.CreateVendorInterfaceAsync(vendorInterface, cancellationToken);
 
         return VendorInterfaceMapper.ToResponse(vendorInterface);

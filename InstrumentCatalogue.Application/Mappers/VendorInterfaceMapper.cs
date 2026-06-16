@@ -5,14 +5,14 @@ namespace InstrumentCatalogue.Application.Mappers;
 
 public static class VendorInterfaceMapper
 {
-    public static VendorInterface ToDomain(CreateVendorInterfaceRequest request)
+    public static VendorInterface ToDomain(int vendorId, CreateVendorInterfaceRequest request)
     {
         ArgumentNullException.ThrowIfNull(request);
 
         return new VendorInterface
         {
             VendorInterfaceId = 0,
-            VendorId = request.VendorId,
+            VendorId = vendorId,
             Name = request.Name,
             Description = request.Description,
             Protocol = request.Protocol,
