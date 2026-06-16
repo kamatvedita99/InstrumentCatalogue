@@ -5,6 +5,9 @@ using InstrumentCatalogue.Infrastructure.Repositories;
 using Microsoft.EntityFrameworkCore;
 using Npgsql;
 using System.Data;
+using FluentValidation;
+using InstrumentCatalogue.Application.DTOs;
+using InstrumentCatalogue.Application.Validators;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -14,6 +17,7 @@ builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+builder.Services.AddValidatorsFromAssemblyContaining<CreateVendorRequestValidator>();
 
 builder.Services.AddDbContext<CatalogueDbContext>(options => options.UseNpgsql(
     builder.Configuration.GetConnectionString("DefaultConnection")).UseSnakeCaseNamingConvention());
