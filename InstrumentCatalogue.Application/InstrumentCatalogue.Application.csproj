@@ -15,8 +15,4 @@
     <ProjectReference Include="..\InstrumentCatalogue.Core\InstrumentCatalogue.Core.csproj" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="Validators\" />
-  </ItemGroup>
-
 </Project>

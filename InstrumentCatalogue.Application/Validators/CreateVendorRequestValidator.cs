@@ -9,7 +9,7 @@ namespace InstrumentCatalogue.Application.Validators
         {
             RuleFor(cvr => cvr.Name).NotEmpty()
                                    .MaximumLength(100)
-                                   .Matches(@"^[0-9]*$").WithMessage("Name cannot contain numbers");
+                                   .Matches(@"^[^0-9]*$").WithMessage("Name cannot contain numbers");
 
             RuleFor(cvr => cvr.ShortCode).NotEmpty()
                                          .MaximumLength(100)

@@ -8,6 +8,7 @@ using System.Data;
 using FluentValidation;
 using InstrumentCatalogue.Application.DTOs;
 using InstrumentCatalogue.Application.Validators;
+using InstrumentCatalogue.API.Middleware;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -35,6 +36,8 @@ builder.Services.AddScoped<ISymbologyService, SymbologyService>();
 
 
 var app = builder.Build();
+
+app.UseMiddleware<GlobalExceptionMiddleware>();
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())

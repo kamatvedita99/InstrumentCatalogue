@@ -1,4 +1,5 @@
-﻿using InstrumentCatalogue.Application.DTOs;
+﻿using FluentValidation;
+using InstrumentCatalogue.Application.DTOs;
 using InstrumentCatalogue.Application.Services;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
@@ -17,8 +18,10 @@ namespace InstrumentCatalogue.API.Controllers
         }
 
         [HttpPost]
-        public async Task<ActionResult<VendorResponse>> CreateVendorAsync([FromBody] CreateVendorRequest vendorRequest, CancellationToken cancellationToken =default)
+        public async Task<ActionResult<VendorResponse>> CreateVendorAsync([FromBody] CreateVendorRequest vendorRequest, IValidator<CreateVendorRequest> validator, CancellationToken cancellationToken =default)
         {
+            await validator.ValidateAndThrowAsync(vendorRequest, cancellationToken);
+
             var vendorResponse = await _vendorService.CreateVendorAsync(vendorRequest, cancellationToken);
 
             return Created(string.Empty, vendorResponse);
