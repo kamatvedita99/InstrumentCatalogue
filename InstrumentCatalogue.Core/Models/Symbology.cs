@@ -1,6 +1,8 @@
-﻿namespace InstrumentCatalogue.Core.Models;
+﻿using InstrumentCatalogue.Core.Interfaces.Shared;
 
-public class Symbology
+namespace InstrumentCatalogue.Core.Models;
+
+public class Symbology : ITimeStampAudit
 {
     public int SymbologyId { get; set; }
     public string TypeCode { get; set; } = string.Empty;

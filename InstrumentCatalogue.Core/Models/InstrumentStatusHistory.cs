@@ -1,8 +1,9 @@
 ﻿using InstrumentCatalogue.Core.Enums;
+using InstrumentCatalogue.Core.Interfaces.Shared;
 
 namespace InstrumentCatalogue.Core.Models;
 
-public class InstrumentStatusHistory
+public class InstrumentStatusHistory : ITimeStampAudit
 {
     public Guid InstrumentStatusHistoryId { get; set; }
 

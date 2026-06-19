@@ -1,8 +1,9 @@
 ﻿using InstrumentCatalogue.Core.Enums;
+using InstrumentCatalogue.Core.Interfaces.Shared;
 
 namespace InstrumentCatalogue.Core.Models;
 
-public class EtfRefData
+public class EtfRefData : ITimeStampAudit
 {
     public Guid InstrumentId { get; set; }
     public string? FundManager { get; set; }

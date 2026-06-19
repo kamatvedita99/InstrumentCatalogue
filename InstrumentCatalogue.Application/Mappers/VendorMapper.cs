@@ -1,4 +1,5 @@
 ﻿using InstrumentCatalogue.Application.DTOs;
+using InstrumentCatalogue.Application.Extensions;
 using InstrumentCatalogue.Core.Models;
 
 namespace InstrumentCatalogue.Application.Mappers;
@@ -16,14 +17,14 @@ public static class VendorMapper
     {
 
         ArgumentNullException.ThrowIfNull(request);
-        return new Vendor
+        var vendor =  new Vendor
         {
             VendorId = 0,
             Name = request.Name,
             ShortCode = request.ShortCode,
-            IsActive = true,
-            CreatedAtUtc = DateTime.UtcNow,
-            LastUpdatedAtUtc = DateTime.UtcNow
+            IsActive = true  
         };
+        
+        return vendor.StampCreated();
     }
 }

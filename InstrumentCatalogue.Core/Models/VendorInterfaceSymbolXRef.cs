@@ -1,6 +1,8 @@
-﻿namespace InstrumentCatalogue.Core.Models;
+﻿using InstrumentCatalogue.Core.Interfaces.Shared;
 
-public class VendorInterfaceSymbolXRef
+namespace InstrumentCatalogue.Core.Models;
+
+public class VendorInterfaceSymbolXRef : ITimeStampAudit
 {
     public Guid VendorInterfaceSymbolXRefId { get; set; }
 

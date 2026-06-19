@@ -1,6 +1,8 @@
-﻿namespace InstrumentCatalogue.Core.Models;
+﻿using InstrumentCatalogue.Core.Interfaces.Shared;
 
-public class Vendor
+namespace InstrumentCatalogue.Core.Models;
+
+public class Vendor : ITimeStampAudit
 {   
     public int VendorId { get; set; }
 

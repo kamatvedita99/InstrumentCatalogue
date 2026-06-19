@@ -1,4 +1,5 @@
 ﻿using InstrumentCatalogue.Application.DTOs;
+using InstrumentCatalogue.Application.Extensions;
 using InstrumentCatalogue.Core.Models;
 
 namespace InstrumentCatalogue.Application.Mappers;
@@ -9,7 +10,7 @@ public static class VendorInterfaceMapper
     {
         ArgumentNullException.ThrowIfNull(request);
 
-        return new VendorInterface
+        var vendorInterface =  new VendorInterface
         {
             VendorInterfaceId = 0,
             VendorId = vendorId,
@@ -17,10 +18,10 @@ public static class VendorInterfaceMapper
             Description = request.Description,
             Protocol = request.Protocol,
             IsActive = true,
-            CreatedAtUtc = DateTime.UtcNow,
-            LastUpdatedAtUtc = DateTime.UtcNow,
 
         };
+
+        return vendorInterface.StampCreated();
 
     }
 

@@ -1,4 +1,5 @@
 ﻿using InstrumentCatalogue.Application.DTOs;
+using InstrumentCatalogue.Application.Extensions;
 using InstrumentCatalogue.Core.Models;
 
 namespace InstrumentCatalogue.Application.Mappers;
@@ -9,16 +10,16 @@ public static class SymbologyMapper
     {
         ArgumentNullException.ThrowIfNull(nameof(symbologyRequest));
 
-        return new Symbology()
+        var symbology =  new Symbology()
         {
             SymbologyId = 0,
             TypeCode = symbologyRequest.TypeCode,
             Description = symbologyRequest.Description ?? string.Empty,
-            IsActive = true,
-            CreatedAtUtc = DateTime.UtcNow,
-            LastUpdatedAtUtc = DateTime.UtcNow
-
+            IsActive = true
         };
+
+        return symbology.StampCreated();
+
     }
 
     public static SymbologyResponse ToResponse(Symbology symbology)

@@ -1,6 +1,8 @@
-﻿namespace InstrumentCatalogue.Core.Models;
+﻿using InstrumentCatalogue.Core.Interfaces.Shared;
 
-public class EquityRefData
+namespace InstrumentCatalogue.Core.Models;
+
+public class EquityRefData : ITimeStampAudit
 {
     public Guid InstrumentId { get; set; }
     public string? Sector { get; set; }
