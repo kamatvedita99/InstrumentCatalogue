@@ -1,4 +1,5 @@
 ﻿using FluentValidation;
+using InstrumentCatalogue.API.ReadModels;
 using InstrumentCatalogue.Application.DTOs;
 using InstrumentCatalogue.Application.Services;
 using Microsoft.AspNetCore.Http.HttpResults;
@@ -18,79 +19,72 @@ namespace InstrumentCatalogue.API.Controllers
         }
 
         [HttpPost]
-        public async Task<ActionResult<VendorResponse>> CreateVendorAsync([FromBody] CreateVendorRequest vendorRequest, IValidator<CreateVendorRequest> validator, CancellationToken cancellationToken =default)
+        public async Task<ActionResult<ApiResponse<VendorResponse>>> CreateVendorAsync([FromBody] CreateVendorRequest vendorRequest, IValidator<CreateVendorRequest> validator, CancellationToken cancellationToken =default)
         {
             await validator.ValidateAndThrowAsync(vendorRequest, cancellationToken);
 
             var vendorResponse = await _vendorService.CreateVendorAsync(vendorRequest, cancellationToken);
 
-            return Created(string.Empty, vendorResponse);
+            return Created(string.Empty, ApiResponse<VendorResponse>.Success(vendorResponse));
             
         }
         
 
         [HttpGet]
         [Route("{id}")]
-        public async Task<ActionResult<VendorResponse?>> GetVendorByIdAsync(int id, CancellationToken cancellationToken = default)
+        public async Task<ActionResult<ApiResponse<VendorResponse?>>> GetVendorByIdAsync(int id, CancellationToken cancellationToken = default)
         {
             var vendorResponse = await _vendorService.GetVendorByIdAsync(id, cancellationToken);
 
-            if(vendorResponse == null)
-                return NotFound();
-
-            return Ok(vendorResponse);
+            return Ok(ApiResponse<VendorResponse?>.Success(vendorResponse));
 
 
         }
 
         [HttpGet]
-        public async Task<ActionResult<ICollection<VendorResponse>>> GetVendorsAsync(CancellationToken cancellationToken = default)
+        public async Task<ActionResult<ApiResponse<ICollection<VendorResponse>>>> GetVendorsAsync(CancellationToken cancellationToken = default)
         {
             var vendorResponseList = await _vendorService.GetVendorsAsync(cancellationToken);
 
-            return Ok(vendorResponseList);
+            return Ok(ApiResponse<ICollection<VendorResponse>>.Success(vendorResponseList));
 
 
         }
 
         [HttpPatch]
         [Route("{id}")]
-        public async Task<ActionResult<VendorResponse>> UpdateVendorAsync(int id, [FromBody] UpdateVendorRequest request, CancellationToken cancellationToken = default)
+        public async Task<ActionResult<ApiResponse<VendorResponse?>>> UpdateVendorAsync(int id, [FromBody] UpdateVendorRequest request, CancellationToken cancellationToken = default)
         {
            var vendorResponse = await _vendorService.UpdateVendorAsync(id, request, cancellationToken);
 
-            if(vendorResponse == null)
-                return NotFound();
 
-            return Ok(vendorResponse);
+            return Ok(ApiResponse<VendorResponse?>.Success(vendorResponse));
 
         }
 
         [HttpPost]
         [Route("{vendorId}/interfaces")]
-        public async Task<ActionResult<VendorInterfaceResponse>> CreateVendorInterfaceAsync(int vendorId, [FromBody] CreateVendorInterfaceRequest request, CancellationToken cancellationToken = default )
+        public async Task<ActionResult<ApiResponse<VendorInterfaceResponse>>> CreateVendorInterfaceAsync(int vendorId, [FromBody] CreateVendorInterfaceRequest request, CancellationToken cancellationToken = default )
         {
             var vendorInterfaceResponse = await _vendorService.CreateVendorInterfaceAsync(vendorId, request, cancellationToken);
-            return Created(string.Empty, vendorInterfaceResponse);
+            return Created(string.Empty, ApiResponse<VendorInterfaceResponse>.Success(vendorInterfaceResponse));
         }
 
         [HttpGet]
         [Route("{vendorId}/interfaces")]
-        public async Task<ActionResult<ICollection<VendorInterfaceResponse>>> GetVendorInterfacesAsync(int vendorId, CancellationToken cancellationToken = default)
+        public async Task<ActionResult<ApiResponse<ICollection<VendorInterfaceResponse>>>> GetVendorInterfacesAsync(int vendorId, CancellationToken cancellationToken = default)
         {
           var vendorInterfaces = await _vendorService.GetVendorInterfacesAsync(vendorId, cancellationToken);
-           return Ok(vendorInterfaces);
+           return Ok(ApiResponse<ICollection<VendorInterfaceResponse>>.Success(vendorInterfaces));
         }
 
         [HttpGet]
         [Route("{vendorId}/interfaces/{id}")]
-        public async Task<ActionResult<VendorInterfaceResponse?>> GetVendorInterfaceByIdAsync(int vendorId, int id, CancellationToken cancellationToken = default)
+        public async Task<ActionResult<ApiResponse<VendorInterfaceResponse?>>> GetVendorInterfaceByIdAsync(int vendorId, int id, CancellationToken cancellationToken = default)
         {
            var vendorInterfaceResponse = await _vendorService.GetVendorInterfaceByIdAsync(id, cancellationToken);
 
-            if( vendorInterfaceResponse == null) return NotFound();
-
-            return Ok(vendorInterfaceResponse);
+            return Ok(ApiResponse<VendorInterfaceResponse?>.Success(vendorInterfaceResponse));
         }
 
 

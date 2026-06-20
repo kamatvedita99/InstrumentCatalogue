@@ -1,4 +1,5 @@
-﻿using InstrumentCatalogue.Application.DTOs;
+﻿using InstrumentCatalogue.API.ReadModels;
+using InstrumentCatalogue.Application.DTOs;
 using InstrumentCatalogue.Application.Services;
 using InstrumentCatalogue.Core.Models;
 using Microsoft.AspNetCore.Mvc;
@@ -17,18 +18,18 @@ public class SymbologyController: ControllerBase
     }
 
     [HttpPost]
-    public async Task<ActionResult<SymbologyResponse>> CreateSymbologyAsync([FromBody] CreateSymbologyRequest symbologyRequest, CancellationToken cancellationToken = default)
+    public async Task<ActionResult<ApiResponse<SymbologyResponse>>> CreateSymbologyAsync([FromBody] CreateSymbologyRequest symbologyRequest, CancellationToken cancellationToken = default)
     {
        var response = await _symbologyService.CreateSymbologyAsync(symbologyRequest, cancellationToken);
-        return Created(string.Empty, response);
+        return Created(string.Empty, ApiResponse<SymbologyResponse>.Success(response));
     }
 
     [HttpGet]
-    public async Task<ActionResult<ICollection<SymbologyResponse>>> GetSymbologiesAsync(CancellationToken cancellationToken = default)
+    public async Task<ActionResult<ApiResponse<ICollection<SymbologyResponse>>>> GetSymbologiesAsync(CancellationToken cancellationToken = default)
     {
         var response = await _symbologyService.GetSymbologiesAsync(cancellationToken);
-        return Ok(response);
-
+        return Ok(ApiResponse<ICollection<SymbologyResponse>>.Success(response));
+            
     }
 
 }

@@ -1,4 +1,5 @@
 ﻿using InstrumentCatalogue.Application.DTOs;
+using InstrumentCatalogue.Application.Exceptions;
 using InstrumentCatalogue.Application.Mappers;
 using InstrumentCatalogue.Core.Interfaces;
 using InstrumentCatalogue.Core.Models;
@@ -36,8 +37,9 @@ public class VendorService : IVendorService
     public async Task<VendorResponse?> GetVendorByIdAsync(int vendorId, CancellationToken cancellationToken = default)
     {
        var vendor = await _vendorRepository.GetVendorByIdAsync(vendorId, cancellationToken);
-       if(vendor == null) 
-            return null;
+       
+        if(vendor == null) 
+            throw new NotFoundException<int>(nameof(vendor), vendorId);
         
         return VendorMapper.ToResponse(vendor);
     }
@@ -45,7 +47,9 @@ public class VendorService : IVendorService
     public async Task<VendorInterfaceResponse?> GetVendorInterfaceByIdAsync(int vendorInterfaceId, CancellationToken cancellationToken = default)
     {
         var vendorInterface = await _vendorRepository.GetVendorInterfaceByIdAsync(vendorInterfaceId, cancellationToken);
-        if(vendorInterface == null) return null;
+        
+        if(vendorInterface == null)
+            throw new NotFoundException<int>(nameof(vendorInterface), vendorInterfaceId);
 
         return VendorInterfaceMapper.ToResponse(vendorInterface);
     }
@@ -67,7 +71,7 @@ public class VendorService : IVendorService
         var vendor = await _vendorRepository.GetVendorByIdAsync(vendorId, cancellationToken);
 
         if(vendor == null)
-            return null;
+            throw new NotFoundException<int>(nameof(vendor), vendorId);
 
         if (!string.IsNullOrWhiteSpace(vendorUpdateRequest.Name))
             vendor.Name = vendorUpdateRequest.Name;
