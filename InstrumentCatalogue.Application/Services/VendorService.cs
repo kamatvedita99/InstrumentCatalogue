@@ -1,5 +1,6 @@
 ﻿using InstrumentCatalogue.Application.DTOs;
 using InstrumentCatalogue.Application.Exceptions;
+using InstrumentCatalogue.Application.Extensions;
 using InstrumentCatalogue.Application.Mappers;
 using InstrumentCatalogue.Core.Interfaces;
 using InstrumentCatalogue.Core.Models;
@@ -68,6 +69,8 @@ public class VendorService : IVendorService
 
     public async Task<VendorResponse?> UpdateVendorAsync(int vendorId, UpdateVendorRequest vendorUpdateRequest, CancellationToken cancellationToken = default)
     {
+        ArgumentNullException.ThrowIfNull(vendorUpdateRequest);
+
         var vendor = await _vendorRepository.GetVendorByIdAsync(vendorId, cancellationToken);
 
         if(vendor == null)
@@ -79,7 +82,7 @@ public class VendorService : IVendorService
         if (vendorUpdateRequest.IsActive.HasValue)
             vendor.IsActive = vendorUpdateRequest.IsActive.Value;
 
-        vendor.LastUpdatedAtUtc = DateTime.UtcNow;
+        vendor.StampUpdated();
 
         await _vendorRepository.UpdateVendorAsync(vendor, cancellationToken);
 
@@ -106,6 +109,8 @@ public class VendorService : IVendorService
 
         if(request.IsActive.HasValue)
             vendorInterface.IsActive = request.IsActive.Value;
+
+        vendorInterface.StampUpdated();
 
         await _vendorRepository.UpdateVendorInterfaceAsync(vendorInterface, cancellationToken);
         return VendorInterfaceMapper.ToResponse(vendorInterface);

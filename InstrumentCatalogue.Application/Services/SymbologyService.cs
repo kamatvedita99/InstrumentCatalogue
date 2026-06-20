@@ -1,5 +1,6 @@
 ﻿using InstrumentCatalogue.Application.DTOs;
 using InstrumentCatalogue.Application.Exceptions;
+using InstrumentCatalogue.Application.Extensions;
 using InstrumentCatalogue.Application.Mappers;
 using InstrumentCatalogue.Core.Interfaces;
 using InstrumentCatalogue.Core.Models;
@@ -54,6 +55,8 @@ public class SymbologyService : ISymbologyService
 
         if(!string.IsNullOrWhiteSpace(request.Description))
             symbology.Description = request.Description;
+
+        symbology.StampUpdated();
 
         await _symbologyRepository.UpdateSymbologyAsync(symbology, cancellationToken);
         return SymbologyMapper.ToResponse(symbology);

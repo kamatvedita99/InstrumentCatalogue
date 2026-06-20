@@ -6,7 +6,6 @@ using Microsoft.EntityFrameworkCore;
 using Npgsql;
 using System.Data;
 using FluentValidation;
-using InstrumentCatalogue.Application.DTOs;
 using InstrumentCatalogue.Application.Validators;
 using InstrumentCatalogue.API.Middleware;
 

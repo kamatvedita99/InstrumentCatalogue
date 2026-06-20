@@ -3,7 +3,10 @@
 public enum InstrumentStatus
 {
     Active,
+
     Suspended,
+
     Delisted,
+
     Pending
 }

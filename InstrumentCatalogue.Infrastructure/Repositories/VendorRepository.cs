@@ -2,7 +2,6 @@
 using InstrumentCatalogue.Core.Interfaces;
 using InstrumentCatalogue.Core.Models;
 using InstrumentCatalogue.Infrastructure.Persistence;
-using Microsoft.EntityFrameworkCore;
 using System.Data;
 
 namespace InstrumentCatalogue.Infrastructure.Repositories;
@@ -20,7 +19,7 @@ public class VendorRepository : IVendorRepository
     }
     public async Task<int> CreateVendorAsync(Vendor vendor, CancellationToken cancellationToken = default)
     {
-        ArgumentNullException.ThrowIfNull(vendor, nameof(vendor));
+        ArgumentNullException.ThrowIfNull(vendor);
 
         await _dbContext.AddAsync(vendor, cancellationToken);
         await _dbContext.SaveChangesAsync(cancellationToken);

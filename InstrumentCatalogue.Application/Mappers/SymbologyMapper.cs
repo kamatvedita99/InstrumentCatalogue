@@ -8,7 +8,7 @@ public static class SymbologyMapper
 {
     public static Symbology ToDomain(CreateSymbologyRequest symbologyRequest)
     {
-        ArgumentNullException.ThrowIfNull(nameof(symbologyRequest));
+        ArgumentNullException.ThrowIfNull(symbologyRequest);
 
         var symbology =  new Symbology()
         {
@@ -24,7 +24,7 @@ public static class SymbologyMapper
 
     public static SymbologyResponse ToResponse(Symbology symbology)
     {
-        ArgumentNullException.ThrowIfNull(nameof(symbology));
+        ArgumentNullException.ThrowIfNull(symbology);
 
         return new SymbologyResponse(
             symbology.SymbologyId,
