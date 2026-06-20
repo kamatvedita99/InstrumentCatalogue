@@ -29,6 +29,11 @@ public class VendorService : IVendorService
     {
         ArgumentNullException.ThrowIfNull(request);
 
+        var vendor = await _vendorRepository.GetVendorByIdAsync(vendorId, cancellationToken);
+        
+        if(vendor == null)
+            throw new NotFoundException<int>(nameof(Vendor), vendorId);
+
         var vendorInterface = VendorInterfaceMapper.ToDomain(vendorId, request);
         await _vendorRepository.CreateVendorInterfaceAsync(vendorInterface, cancellationToken);
 
@@ -40,14 +45,14 @@ public class VendorService : IVendorService
        var vendor = await _vendorRepository.GetVendorByIdAsync(vendorId, cancellationToken);
        
         if(vendor == null) 
-            throw new NotFoundException<int>(nameof(vendor), vendorId);
+            throw new NotFoundException<int>(nameof(Vendor), vendorId);
         
         return VendorMapper.ToResponse(vendor);
     }
 
-    public async Task<VendorInterfaceResponse?> GetVendorInterfaceByIdAsync(int vendorInterfaceId, CancellationToken cancellationToken = default)
+    public async Task<VendorInterfaceResponse?> GetVendorInterfaceByIdAsync(int vendorId, int vendorInterfaceId, CancellationToken cancellationToken = default)
     {
-        var vendorInterface = await _vendorRepository.GetVendorInterfaceByIdAsync(vendorInterfaceId, cancellationToken);
+        var vendorInterface = await _vendorRepository.GetVendorInterfaceByIdAsync(vendorId, vendorInterfaceId, cancellationToken);
         
         if(vendorInterface == null)
             throw new NotFoundException<int>(nameof(vendorInterface), vendorInterfaceId);
@@ -93,7 +98,7 @@ public class VendorService : IVendorService
 
     public async Task<VendorInterfaceResponse?> UpdateVendorInterfaceAsync(int vendorId, int vendorInterfaceId, UpdateVendorInterfaceRequest request, CancellationToken cancellationToken = default)
     {
-        var vendorInterface = await _vendorRepository.GetVendorInterfaceByIdAsync(vendorInterfaceId, cancellationToken);
+        var vendorInterface = await _vendorRepository.GetVendorInterfaceByIdAsync(vendorId, vendorInterfaceId, cancellationToken);
 
         if(vendorInterface == null)
             throw new NotFoundException<int>(nameof(VendorInterface), vendorInterfaceId);

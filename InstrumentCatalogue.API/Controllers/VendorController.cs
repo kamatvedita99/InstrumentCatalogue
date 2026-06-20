@@ -86,7 +86,7 @@ namespace InstrumentCatalogue.API.Controllers
         [Route("{vendorId}/interfaces/{id}")]
         public async Task<ActionResult<ApiResponse<VendorInterfaceResponse?>>> GetVendorInterfaceByIdAsync(int vendorId, int id, CancellationToken cancellationToken = default)
         {
-           var vendorInterfaceResponse = await _vendorService.GetVendorInterfaceByIdAsync(id, cancellationToken);
+           var vendorInterfaceResponse = await _vendorService.GetVendorInterfaceByIdAsync(vendorId, id, cancellationToken);
 
            return Ok(ApiResponse<VendorInterfaceResponse?>.Success(vendorInterfaceResponse));
         }
