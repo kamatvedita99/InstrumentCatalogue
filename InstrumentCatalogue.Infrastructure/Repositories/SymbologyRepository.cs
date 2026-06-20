@@ -15,7 +15,7 @@ public class SymbologyRepository : ISymbologyRepository
     public SymbologyRepository(CatalogueDbContext dbContext, IDbConnection dbConnection)
     {
         _dbContext = dbContext ?? throw new ArgumentNullException(nameof(dbContext));
-        _dbConnection = dbConnection ?? throw new ArgumentNullException(nameof(_dbConnection));
+        _dbConnection = dbConnection ?? throw new ArgumentNullException(nameof(dbConnection));
     }
     public Task<Guid> CreateSymbolAsync(SymbolXRef symbolXRef, CancellationToken cancellationToken = default)
     {

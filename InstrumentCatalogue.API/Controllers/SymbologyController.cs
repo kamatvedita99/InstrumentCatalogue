@@ -18,10 +18,11 @@ public class SymbologyController: ControllerBase
     }
 
     [HttpPost]
-    public async Task<ActionResult<ApiResponse<SymbologyResponse>>> CreateSymbologyAsync([FromBody] CreateSymbologyRequest symbologyRequest, CancellationToken cancellationToken = default)
+    public async Task<ActionResult<ApiResponse<SymbologyResponse>>> CreateSymbologyAsync([FromBody] CreateSymbologyRequest symbologyRequest, IValidator<CreateSymbologyRequest> validator, CancellationToken cancellationToken = default)
     {
+       await validator.ValidateAndThrowAsync(symbologyRequest, cancellationToken);
        var response = await _symbologyService.CreateSymbologyAsync(symbologyRequest, cancellationToken);
-        return Created(string.Empty, ApiResponse<SymbologyResponse>.Success(response));
+       return Created(string.Empty, ApiResponse<SymbologyResponse>.Success(response));
     }
 
     [HttpGet]
