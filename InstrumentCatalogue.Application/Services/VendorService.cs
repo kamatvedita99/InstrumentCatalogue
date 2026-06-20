@@ -55,7 +55,7 @@ public class VendorService : IVendorService
         var vendorInterface = await _vendorRepository.GetVendorInterfaceByIdAsync(vendorId, vendorInterfaceId, cancellationToken);
         
         if(vendorInterface == null)
-            throw new NotFoundException<int>(nameof(VendorInterface), vendorInterfaceId);
+            throw new NotFoundException<int>(nameof(VendorInterface), vendorInterfaceId, $"{nameof(VendorInterface)} with Id: {vendorInterfaceId} was not found for {nameof(Vendor)} with Id: {vendorId}.");
 
         return VendorInterfaceMapper.ToResponse(vendorInterface);
     }
@@ -101,7 +101,7 @@ public class VendorService : IVendorService
         var vendorInterface = await _vendorRepository.GetVendorInterfaceByIdAsync(vendorId, vendorInterfaceId, cancellationToken);
 
         if(vendorInterface == null)
-            throw new NotFoundException<int>(nameof(VendorInterface), vendorInterfaceId, $"{nameof(Vendor)} with Id: {vendorInterfaceId} was not found for {nameof(Vendor)} {vendorId}.");
+            throw new NotFoundException<int>(nameof(VendorInterface), vendorInterfaceId, $"{nameof(VendorInterface)} with Id: {vendorInterfaceId} was not found for {nameof(Vendor)} with Id: {vendorId}.");
 
         if(!string.IsNullOrWhiteSpace(request.Name))
             vendorInterface.Name = request.Name;
