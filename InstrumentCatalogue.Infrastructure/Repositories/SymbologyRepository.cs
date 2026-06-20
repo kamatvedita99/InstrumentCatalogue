@@ -53,9 +53,15 @@ public class SymbologyRepository : ISymbologyRepository
         return symbologies.ToList();
     }
 
-    public Task<Symbology?> GetSymbologyByIdAsync(int symbologyId, CancellationToken cancellationToken = default)
+    public async Task<Symbology?> GetSymbologyByIdAsync(int symbologyId, CancellationToken cancellationToken = default)
     {
-        throw new NotImplementedException();
+        var command = new CommandDefinition(
+            commandText: "SELECT symbology_id, type_code, description, is_active, created_at_utc, last_updated_at_utc from symbologies where symbology_id = @symbology_id",
+            parameters: new { symbology_id = symbologyId },
+            cancellationToken: cancellationToken
+
+            );
+        return await _dbConnection.QuerySingleOrDefaultAsync<Symbology?>(command);
     }
 
     public Task<PagedResult<SymbolXRef>> GetSymbolsAsync(int symbologyId, CancellationToken cancellationToken = default)
@@ -68,9 +74,12 @@ public class SymbologyRepository : ISymbologyRepository
         throw new NotImplementedException();
     }
 
-    public Task UpdateSymbologyAsync(Symbology symbology, CancellationToken cancellationToken = default)
+    public async Task UpdateSymbologyAsync(Symbology symbology, CancellationToken cancellationToken = default)
     {
-        throw new NotImplementedException();
+        ArgumentNullException.ThrowIfNull(symbology);
+
+        _dbContext.Update(symbology);
+        await _dbContext.SaveChangesAsync(cancellationToken);
     }
 
     public Task UpdateSymbolValidToAsync(Guid symbolXRefId, DateOnly validTo, CancellationToken cancellationToken = default)

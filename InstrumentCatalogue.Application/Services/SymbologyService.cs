@@ -1,6 +1,8 @@
 ﻿using InstrumentCatalogue.Application.DTOs;
+using InstrumentCatalogue.Application.Exceptions;
 using InstrumentCatalogue.Application.Mappers;
 using InstrumentCatalogue.Core.Interfaces;
+using InstrumentCatalogue.Core.Models;
 
 namespace InstrumentCatalogue.Application.Services;
 
@@ -26,5 +28,34 @@ public class SymbologyService : ISymbologyService
     {
         var symbologies = await _symbologyRepository.GetSymbologiesAsync(cancellationToken);
         return symbologies.Select(SymbologyMapper.ToResponse).ToList();
+    }
+
+    public async Task<SymbologyResponse?> GetSymbologyByIdAsync(int symbologyId, CancellationToken cancellationToken = default)
+    {
+       var symbology = await _symbologyRepository.GetSymbologyByIdAsync(symbologyId, cancellationToken);
+        
+        if(symbology == null)
+            throw new NotFoundException<int>(nameof(Symbology), symbologyId);
+
+        return SymbologyMapper.ToResponse(symbology);
+    }
+
+    public async Task<SymbologyResponse?> UpdateSymbologyAsync(int symbologyId, UpdateSymbologyRequest request, CancellationToken cancellationToken = default)
+    {
+        ArgumentNullException.ThrowIfNull(request);
+
+        var symbology = await _symbologyRepository.GetSymbologyByIdAsync(symbologyId, cancellationToken);
+
+        if(symbology == null)
+            throw new NotFoundException<int>(nameof(Symbology), symbologyId);
+
+        if(request.IsActive.HasValue)
+            symbology.IsActive = request.IsActive.Value;
+
+        if(!string.IsNullOrWhiteSpace(request.Description))
+            symbology.Description = request.Description;
+
+        await _symbologyRepository.UpdateSymbologyAsync(symbology, cancellationToken);
+        return SymbologyMapper.ToResponse(symbology);
     }
 }

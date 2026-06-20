@@ -1,7 +1,7 @@
-﻿using InstrumentCatalogue.API.ReadModels;
+﻿using FluentValidation;
+using InstrumentCatalogue.API.ReadModels;
 using InstrumentCatalogue.Application.DTOs;
 using InstrumentCatalogue.Application.Services;
-using InstrumentCatalogue.Core.Models;
 using Microsoft.AspNetCore.Mvc;
 
 namespace InstrumentCatalogue.API.Controllers;
@@ -30,6 +30,24 @@ public class SymbologyController: ControllerBase
         var response = await _symbologyService.GetSymbologiesAsync(cancellationToken);
         return Ok(ApiResponse<ICollection<SymbologyResponse>>.Success(response));
             
+    }
+
+    [HttpGet]
+    [Route("{id}")]
+    public async Task<ActionResult<ApiResponse<SymbologyResponse?>>> GetSymbologyByIdAsync(int id, CancellationToken cancellationToken = default)
+    {
+        var response = await _symbologyService.GetSymbologyByIdAsync(id, cancellationToken);
+        return Ok(ApiResponse<SymbologyResponse?>.Success(response));
+    }
+
+    [HttpPatch]
+    [Route("{id}")]
+    public async Task<ActionResult<ApiResponse<SymbologyResponse?>>> UpdateSymbologyAsync(int id, UpdateSymbologyRequest request, IValidator<UpdateSymbologyRequest> validator, CancellationToken cancellationToken = default)
+    {
+        await validator.ValidateAndThrowAsync(request, cancellationToken);
+
+        var response = await _symbologyService.UpdateSymbologyAsync(id, request, cancellationToken);
+        return Ok(ApiResponse<SymbologyResponse?>.Success(response));
     }
 
 }
