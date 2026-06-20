@@ -1,9 +1,8 @@
 ﻿using FluentValidation;
 using InstrumentCatalogue.API.ReadModels;
 using InstrumentCatalogue.Application.Exceptions;
-using Microsoft.AspNetCore.Mvc.TagHelpers.Cache;
+using InstrumentCatalogue.Core.Exceptions;
 using System.Net;
-using System.Text.Json;
 
 namespace InstrumentCatalogue.API.Middleware;
 
@@ -40,7 +39,7 @@ public class GlobalExceptionMiddleware
 
                 catch (NotFoundException ex)
                 {
-                    _logger.LogError(ex, "NotFound exception for {path}", context.Request.Path);
+                    _logger.LogWarning(ex, "NotFound exception for {path}", context.Request.Path);
                     context.Response.StatusCode = (int)HttpStatusCode.NotFound;
                     context.Response.ContentType = "application/json";
                     var response = ApiResponse<object>.Fail(new ErrorDetail { Message = ex.Message, TraceId = context.TraceIdentifier });

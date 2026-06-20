@@ -1,5 +1,7 @@
-﻿using InstrumentCatalogue.Core.Models;
+﻿using InstrumentCatalogue.Core.Exceptions;
+using InstrumentCatalogue.Core.Models;
 using Microsoft.EntityFrameworkCore;
+using Npgsql;
 
 namespace InstrumentCatalogue.Infrastructure.Persistence;
 
@@ -29,6 +31,22 @@ public class CatalogueDbContext: DbContext
     {
         base.OnModelCreating(modelBuilder);
         modelBuilder.ApplyConfigurationsFromAssembly(typeof(CatalogueDbContext).Assembly);
+    }
+
+    public async override Task<int> SaveChangesAsync(CancellationToken cancellationToken)
+    {
+        try
+        {
+            return await base.SaveChangesAsync(cancellationToken);
+        }
+
+        catch (DbUpdateException ex) when (ex.InnerException is PostgresException pgEx && pgEx.SqlState == "23505") //unique constraint exception
+        {
+            throw new ConflictException(
+                clientMessage: "A record with this value already exists.",
+                innerException: ex
+            );
+        }
     }
 
 }
