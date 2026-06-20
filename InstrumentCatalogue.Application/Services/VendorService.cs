@@ -88,8 +88,27 @@ public class VendorService : IVendorService
 
     }
 
-    public Task<VendorInterfaceResponse?> UpdateVendorInterfaceAsync(CancellationToken cancellationToken = default)
+    public async Task<VendorInterfaceResponse?> UpdateVendorInterfaceAsync(int vendorId, int vendorInterfaceId, UpdateVendorInterfaceRequest request, CancellationToken cancellationToken = default)
     {
-        throw new NotImplementedException();
+        var vendorInterface = await _vendorRepository.GetVendorInterfaceByIdAsync(vendorInterfaceId, cancellationToken);
+
+        if(vendorInterface == null)
+            throw new NotFoundException<int>(nameof(VendorInterface), vendorInterfaceId);
+
+        if(!string.IsNullOrWhiteSpace(request.Name))
+            vendorInterface.Name = request.Name;
+
+        if(!string.IsNullOrWhiteSpace(request.Description))
+            vendorInterface.Description = request.Description;
+
+        if(!string.IsNullOrWhiteSpace(request.Protocol))
+            vendorInterface.Protocol = request.Protocol;
+
+        if(request.IsActive.HasValue)
+            vendorInterface.IsActive = request.IsActive.Value;
+
+        await _vendorRepository.UpdateVendorInterfaceAsync(vendorInterface, cancellationToken);
+        return VendorInterfaceMapper.ToResponse(vendorInterface);
+        
     }
 }

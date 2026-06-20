@@ -13,7 +13,7 @@ namespace InstrumentCatalogue.Application.Validators
                                         .Matches(@"^[A-Z]+$").WithMessage("TypeCode must be uppercase only, no spaces");
 
 
-            RuleFor(csr => csr.Description).NotEmpty()
+            RuleFor(csr => csr.Description)
                                    .MaximumLength(250)
                                    .Matches(@"^[^0-9]*$").WithMessage("Description cannot contain numbers");
 

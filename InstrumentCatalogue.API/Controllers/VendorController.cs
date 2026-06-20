@@ -53,9 +53,11 @@ namespace InstrumentCatalogue.API.Controllers
 
         [HttpPatch]
         [Route("{id}")]
-        public async Task<ActionResult<ApiResponse<VendorResponse?>>> UpdateVendorAsync(int id, [FromBody] UpdateVendorRequest request, CancellationToken cancellationToken = default)
+        public async Task<ActionResult<ApiResponse<VendorResponse?>>> UpdateVendorAsync(int id, [FromBody] UpdateVendorRequest request, IValidator<UpdateVendorRequest> validator, CancellationToken cancellationToken = default)
         {
-           var vendorResponse = await _vendorService.UpdateVendorAsync(id, request, cancellationToken);
+           
+            await validator.ValidateAndThrowAsync(request, cancellationToken);
+            var vendorResponse = await _vendorService.UpdateVendorAsync(id, request, cancellationToken);
 
 
             return Ok(ApiResponse<VendorResponse?>.Success(vendorResponse));
@@ -64,8 +66,10 @@ namespace InstrumentCatalogue.API.Controllers
 
         [HttpPost]
         [Route("{vendorId}/interfaces")]
-        public async Task<ActionResult<ApiResponse<VendorInterfaceResponse>>> CreateVendorInterfaceAsync(int vendorId, [FromBody] CreateVendorInterfaceRequest request, CancellationToken cancellationToken = default )
+        public async Task<ActionResult<ApiResponse<VendorInterfaceResponse>>> CreateVendorInterfaceAsync(int vendorId, [FromBody] CreateVendorInterfaceRequest request, IValidator<CreateVendorInterfaceRequest> validator, CancellationToken cancellationToken = default )
         {
+            await validator.ValidateAndThrowAsync(request, cancellationToken);
+
             var vendorInterfaceResponse = await _vendorService.CreateVendorInterfaceAsync(vendorId, request, cancellationToken);
             return Created(string.Empty, ApiResponse<VendorInterfaceResponse>.Success(vendorInterfaceResponse));
         }
@@ -84,7 +88,18 @@ namespace InstrumentCatalogue.API.Controllers
         {
            var vendorInterfaceResponse = await _vendorService.GetVendorInterfaceByIdAsync(id, cancellationToken);
 
-            return Ok(ApiResponse<VendorInterfaceResponse?>.Success(vendorInterfaceResponse));
+           return Ok(ApiResponse<VendorInterfaceResponse?>.Success(vendorInterfaceResponse));
+        }
+
+        [HttpPatch]
+        [Route("{vendorId}/interfaces/{id}")]
+        public async Task<ActionResult<ApiResponse<VendorInterfaceResponse?>>> UpdateVendorInterfaceAsync(int vendorId, int id, [FromBody]UpdateVendorInterfaceRequest request, IValidator<UpdateVendorInterfaceRequest>validator, CancellationToken cancellationToken = default)
+        {
+            await validator.ValidateAndThrowAsync(request, cancellationToken);
+
+            var vendorInterface = await _vendorService.UpdateVendorInterfaceAsync(vendorId, id, request, cancellationToken);
+
+            return Ok(ApiResponse<VendorInterfaceResponse?>.Success(vendorInterface));
         }
 
 

@@ -19,6 +19,6 @@ public interface IVendorService
 
     Task<ICollection<VendorInterfaceResponse>> GetVendorInterfacesAsync(int vendorId, CancellationToken cancellationToken = default);
 
-    Task<VendorInterfaceResponse?> UpdateVendorInterfaceAsync(CancellationToken cancellationToken= default); 
+    Task<VendorInterfaceResponse?> UpdateVendorInterfaceAsync(int vendorId, int vendorInterfaceId, UpdateVendorInterfaceRequest request, CancellationToken cancellationToken= default); 
 
 }

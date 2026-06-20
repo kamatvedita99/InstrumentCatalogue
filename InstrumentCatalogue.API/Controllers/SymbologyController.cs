@@ -43,7 +43,7 @@ public class SymbologyController: ControllerBase
 
     [HttpPatch]
     [Route("{id}")]
-    public async Task<ActionResult<ApiResponse<SymbologyResponse?>>> UpdateSymbologyAsync(int id, UpdateSymbologyRequest request, IValidator<UpdateSymbologyRequest> validator, CancellationToken cancellationToken = default)
+    public async Task<ActionResult<ApiResponse<SymbologyResponse?>>> UpdateSymbologyAsync(int id, [FromBody] UpdateSymbologyRequest request, IValidator<UpdateSymbologyRequest> validator, CancellationToken cancellationToken = default)
     {
         await validator.ValidateAndThrowAsync(request, cancellationToken);
 
