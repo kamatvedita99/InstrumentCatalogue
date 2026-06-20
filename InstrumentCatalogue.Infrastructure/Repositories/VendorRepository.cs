@@ -47,18 +47,6 @@ public class VendorRepository : IVendorRepository
         return vendor;
     }
 
-    public async Task<VendorInterface?> GetVendorInterfaceByIdAsync(int vendorInterfaceId, CancellationToken cancellationToken = default)
-    {
-        var command = new CommandDefinition(
-
-            commandText: "SELECT vendor_interface_id, vendor_id, name, description, protocol, is_active, created_at_utc, last_updated_at_utc from vendor_interfaces where vendor_interface_id = @vendor_interface_id;", 
-            parameters: new { vendor_interface_id = vendorInterfaceId },
-            cancellationToken: cancellationToken
-            );
-
-       return await  _connection.QueryFirstOrDefaultAsync<VendorInterface?>(command);
-    }
-
     public async Task<VendorInterface?> GetVendorInterfaceByIdAsync(int vendorId, int vendorInterfaceId, CancellationToken cancellationToken = default)
     {
         var command = new CommandDefinition(
