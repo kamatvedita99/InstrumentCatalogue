@@ -1,7 +1,7 @@
 ﻿using FluentValidation;
-using InstrumentCatalogue.Application.DTOs;
+using InstrumentCatalogue.Application.DTOs.VendorInterface;
 
-namespace InstrumentCatalogue.Application.Validators;
+namespace InstrumentCatalogue.Application.Validators.VendorInterface;
 
 public class CreateVendorInterfaceRequestValidator : AbstractValidator<CreateVendorInterfaceRequest>
 {
@@ -13,7 +13,7 @@ public class CreateVendorInterfaceRequestValidator : AbstractValidator<CreateVen
 
         RuleFor(cvir => cvir.Protocol)
                                      .MaximumLength(100);
-                                  
+
 
         RuleFor(cvir => cvir.Description)
                                    .MaximumLength(250)

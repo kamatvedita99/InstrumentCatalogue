@@ -6,8 +6,8 @@ using Microsoft.EntityFrameworkCore;
 using Npgsql;
 using System.Data;
 using FluentValidation;
-using InstrumentCatalogue.Application.Validators;
 using InstrumentCatalogue.API.Middleware;
+using InstrumentCatalogue.Application.Validators.Vendor;
 
 var builder = WebApplication.CreateBuilder(args);
 

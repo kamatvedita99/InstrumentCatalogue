@@ -1,4 +1,5 @@
-﻿using InstrumentCatalogue.Application.DTOs;
+﻿using InstrumentCatalogue.Application.DTOs.Vendor;
+using InstrumentCatalogue.Application.DTOs.VendorInterface;
 using InstrumentCatalogue.Core.Models;
 
 namespace InstrumentCatalogue.Application.Services;

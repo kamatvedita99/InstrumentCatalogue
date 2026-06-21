@@ -1,7 +1,7 @@
 ﻿using FluentValidation;
-using InstrumentCatalogue.Application.DTOs;
+using InstrumentCatalogue.Application.DTOs.Symbology;
 
-namespace InstrumentCatalogue.Application.Validators;
+namespace InstrumentCatalogue.Application.Validators.Symbology;
 
 public class UpdateSymbologyRequestValidator : AbstractValidator<UpdateSymbologyRequest>
 {

@@ -1,7 +1,7 @@
 ﻿using FluentValidation;
-using InstrumentCatalogue.Application.DTOs;
+using InstrumentCatalogue.Application.DTOs.Vendor;
 
-namespace InstrumentCatalogue.Application.Validators;
+namespace InstrumentCatalogue.Application.Validators.Vendor;
 
 public class UpdateVendorRequestValidator : AbstractValidator<UpdateVendorRequest>
 {

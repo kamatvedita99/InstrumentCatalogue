@@ -1,4 +1,4 @@
-﻿using InstrumentCatalogue.Application.DTOs;
+﻿using InstrumentCatalogue.Application.DTOs.Vendor;
 using InstrumentCatalogue.Application.Extensions;
 using InstrumentCatalogue.Core.Models;
 

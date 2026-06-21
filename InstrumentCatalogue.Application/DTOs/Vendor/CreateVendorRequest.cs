@@ -1,4 +1,4 @@
-﻿namespace InstrumentCatalogue.Application.DTOs;
+﻿namespace InstrumentCatalogue.Application.DTOs.Vendor;
 
 public class CreateVendorRequest
 {

@@ -1,6 +1,7 @@
 ﻿using FluentValidation;
 using InstrumentCatalogue.API.ReadModels;
-using InstrumentCatalogue.Application.DTOs;
+using InstrumentCatalogue.Application.DTOs.Vendor;
+using InstrumentCatalogue.Application.DTOs.VendorInterface;
 using InstrumentCatalogue.Application.Services;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;

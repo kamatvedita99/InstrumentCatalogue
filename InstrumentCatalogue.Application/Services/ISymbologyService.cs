@@ -1,4 +1,4 @@
-﻿using InstrumentCatalogue.Application.DTOs;
+﻿using InstrumentCatalogue.Application.DTOs.Symbology;
 
 namespace InstrumentCatalogue.Application.Services;
 

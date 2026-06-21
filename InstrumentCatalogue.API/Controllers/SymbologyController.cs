@@ -1,6 +1,6 @@
 ﻿using FluentValidation;
 using InstrumentCatalogue.API.ReadModels;
-using InstrumentCatalogue.Application.DTOs;
+using InstrumentCatalogue.Application.DTOs.Symbology;
 using InstrumentCatalogue.Application.Services;
 using Microsoft.AspNetCore.Mvc;
 
