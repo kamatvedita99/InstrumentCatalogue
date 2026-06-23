@@ -3,7 +3,7 @@ using InstrumentCatalogue.Core.Interfaces.Shared;
 
 namespace InstrumentCatalogue.Core.Models;
 
-public class EtfRefData : ITimeStampAudit
+public class EtfRefData : ITimeStampAudit, IInstrumentRefData
 {
     public Guid InstrumentId { get; set; }
     public string? FundManager { get; set; }

@@ -3,7 +3,7 @@ using InstrumentCatalogue.Core.Interfaces.Shared;
 
 namespace InstrumentCatalogue.Core.Models;
 
-public class BondRefData : ITimeStampAudit
+public class BondRefData : ITimeStampAudit, IInstrumentRefData
 {
     public Guid InstrumentId { get; set; }
 

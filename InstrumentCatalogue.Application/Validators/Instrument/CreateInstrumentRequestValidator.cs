@@ -34,6 +34,10 @@ public class CreateInstrumentRequestValidator: AbstractValidator<CreateInstrumen
         RuleForEach(cir => cir.Symbols)
                 .SetValidator(new CreateInstrumentSymbolRequestValidator());
 
+        RuleFor(cir => cir.VendorName).NotEmpty();
+
+        RuleFor(cir => cir.InterfaceName).NotEmpty();
+
 
     }
 

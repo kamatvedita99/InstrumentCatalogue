@@ -22,6 +22,8 @@ public class CreateInstrumentRequest
 
     public CreateEtfRefRequest? EtfRef { get; set; }
 
-    public int VendorInterfaceId { get; set; }
+    public string VendorName { get; set; } = string.Empty;
+
+    public string InterfaceName { get; set; } = string.Empty;
 
 }

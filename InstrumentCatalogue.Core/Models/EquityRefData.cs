@@ -2,7 +2,7 @@
 
 namespace InstrumentCatalogue.Core.Models;
 
-public class EquityRefData : ITimeStampAudit
+public class EquityRefData : ITimeStampAudit, IInstrumentRefData
 {
     public Guid InstrumentId { get; set; }
     public string? Sector { get; set; }
