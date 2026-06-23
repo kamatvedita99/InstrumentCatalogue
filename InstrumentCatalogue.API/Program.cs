@@ -8,6 +8,8 @@ using System.Data;
 using FluentValidation;
 using InstrumentCatalogue.API.Middleware;
 using InstrumentCatalogue.Application.Validators.Vendor;
+using InstrumentCatalogue.Application.Mappers;
+using InstrumentCatalogue.Core.Enums;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -36,6 +38,12 @@ builder.Services.AddScoped<IVendorService, VendorService>();
 builder.Services.AddScoped<ISymbologyRepository, SymbologyRepository>();
 builder.Services.AddScoped<ISymbologyService, SymbologyService>();
 
+builder.Services.AddSingleton( new Dictionary<InstrumentType, IRefDataMapper>
+{
+    { InstrumentType.Bond, new BondRefDataMapper() },
+    { InstrumentType.Equity, new EquityRefDataMapper() },
+    { InstrumentType.ETF, new EtfRefDataMapper() }
+});
 
 var app = builder.Build();
 

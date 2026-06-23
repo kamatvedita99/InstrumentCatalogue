@@ -20,5 +20,7 @@ public interface IVendorRepository
 
     Task<ICollection<VendorInterface>> GetVendorInterfacesAsync(int vendorId, CancellationToken cancellationToken = default);
 
+    Task<VendorInterface?> GetVendorInterfaceByNamesAsync(string vendorName, string interfaceName, CancellationToken cancellationToken = default);
+
 
 }

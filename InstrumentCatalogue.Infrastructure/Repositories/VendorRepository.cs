@@ -101,4 +101,20 @@ public class VendorRepository : IVendorRepository
         _dbContext.Update(vendorInterface);
         await _dbContext.SaveChangesAsync(cancellationToken);
     }
+
+    public async Task<VendorInterface?> GetVendorInterfaceByNamesAsync(string vendorName, string interfaceName, CancellationToken cancellationToken = default)
+    {
+        ArgumentNullException.ThrowIfNull(vendorName);
+        ArgumentNullException.ThrowIfNull(interfaceName);
+
+        var command = new CommandDefinition(
+
+            commandText: "SELECT vi.vendor_interface_id, vi.vendor_id, vi.name, vi.description, vi.protocol, vi.is_active, vi.created_at_utc, vi.last_updated_at_utc from " +
+            "vendor_interfaces vi INNER JOIN vendors v ON v.vendor_id = vi.vendor_id where " +
+            "v.name = @vendor_name AND vi.name = @interface_name",
+            parameters: new { @vendor_name = vendorName, @interface_name = interfaceName },
+            cancellationToken: cancellationToken
+            );
+        return await _connection.QuerySingleOrDefaultAsync<VendorInterface?>(command);
+    }
 }
