@@ -1,5 +1,8 @@
 ﻿using InstrumentCatalogue.Application.DTOs.Instrument;
+using InstrumentCatalogue.Application.Exceptions;
+using InstrumentCatalogue.Application.Mappers;
 using InstrumentCatalogue.Core.Interfaces;
+using InstrumentCatalogue.Core.Models;
 using System.Diagnostics.Metrics;
 
 namespace InstrumentCatalogue.Application.Services;
@@ -12,14 +15,38 @@ public class InstrumentService : IInstrumentService
 
     private readonly IInstrumentRepository _instrumentRepository;
 
-    public InstrumentService(IVendorRepository vendorRepository, ISymbologyRepository symbologyRepository, IInstrumentRepository instrumentRepository)
+    private readonly InstrumentMapper _instrumentMapper;
+
+    public InstrumentService(IVendorRepository vendorRepository, ISymbologyRepository symbologyRepository, IInstrumentRepository instrumentRepository, InstrumentMapper instrumentMapper)
     {
-        _vendorRepository = vendorRepository;
-        _symbologyRepository = symbologyRepository;
-        _instrumentRepository = instrumentRepository;
+        _vendorRepository = vendorRepository ?? throw new ArgumentNullException(nameof(vendorRepository));
+        _symbologyRepository = symbologyRepository ?? throw new ArgumentNullException(nameof(symbologyRepository));
+        _instrumentRepository = instrumentRepository ?? throw new ArgumentNullException(nameof(instrumentRepository));
+        _instrumentMapper = instrumentMapper ?? throw new ArgumentNullException(nameof(instrumentMapper));
+
     }
-    public Task<Guid> CreateAsync(CreateInstrumentRequest request, CancellationToken cancellationToken = default)
+    public async Task<Guid> CreateAsync(CreateInstrumentRequest request, CancellationToken cancellationToken = default)
     {
-        throw new NotImplementedException();
+        ArgumentNullException.ThrowIfNull(request);
+
+       var vendorInterface =  await _vendorRepository.GetVendorInterfaceByNamesAsync(request.VendorName, request.InterfaceName, cancellationToken);
+
+        if(vendorInterface == null)
+            throw new NotFoundException<int>(nameof(VendorInterface), 0, $"{nameof(VendorInterface)} not found for vendor_name={request.VendorName}, interface_name={request.InterfaceName}");
+
+        var symbologyTypeCodesRequest = request.Symbols.Select(s => s.SymbologyTypeCode).ToList();
+        var symbologies = await _symbologyRepository.GetSymbologiesByTypeCodeAsync(symbologyTypeCodesRequest, cancellationToken);
+
+        if (symbologies.Count != symbologyTypeCodesRequest.Count)
+        {
+            var missingSymbologies = symbologyTypeCodesRequest.Except(symbologies.Select(s => s.TypeCode)).ToList();
+            var formattedMissingSymbologies = string.Join(",", missingSymbologies);
+            throw new NotFoundException<string>(nameof(Symbology), formattedMissingSymbologies, $"Symbologies {formattedMissingSymbologies} not found");
+                
+        }
+
+        var instrument = _instrumentMapper.ToDomain(request, symbologies.ToDictionary(s => s.TypeCode, s => s.SymbologyId));
+        return new Guid();
+    
     }
 }

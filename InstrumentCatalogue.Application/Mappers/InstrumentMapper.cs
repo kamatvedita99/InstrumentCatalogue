@@ -1,4 +1,6 @@
 ﻿using InstrumentCatalogue.Application.DTOs.Instrument;
+using InstrumentCatalogue.Application.Exceptions;
+using InstrumentCatalogue.Application.Extensions;
 using InstrumentCatalogue.Core.Enums;
 using InstrumentCatalogue.Core.Models;
 
@@ -12,7 +14,7 @@ public class InstrumentMapper
         _instrumentRefDataMapping = instrumentRefDataMapping;
     }
 
-    public Instrument ToDomain(CreateInstrumentRequest request)
+    public Instrument ToDomain(CreateInstrumentRequest request, Dictionary<string, int>symbologyMapper)
     {
         ArgumentNullException.ThrowIfNull(request);
 
@@ -43,6 +45,26 @@ public class InstrumentMapper
                 break;
 
         }
+
+        instrument.Symbols = request.Symbols.Select(
+            (symbol) =>
+
+            {
+                if (!symbologyMapper.TryGetValue(symbol.SymbologyTypeCode, out var symbologyId))
+                    throw new NotFoundException<string>(nameof(Symbology), symbol.SymbologyTypeCode);
+
+                return new SymbolXRef
+                {
+                    SymbologyId = symbologyId,
+                    Symbol = symbol.SymbolName,
+                    IsPrimary = symbol.IsPrimary,
+
+                }.StampCreated();
+
+            }).ToList();
+        
+
+        instrument.StampCreated();
 
         return instrument;
     }

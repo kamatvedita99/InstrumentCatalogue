@@ -28,6 +28,6 @@ public interface ISymbologyRepository
     Task UpdateVendorInterfaceSymbolAsync(Guid vendorInterfaceSymbolXRefId, bool isActive, CancellationToken cancellationToken = default);
 
 
-
+    Task<ICollection<Symbology>> GetSymbologiesByTypeCodeAsync(ICollection<string> symbologyCodes,  CancellationToken cancellationToken = default);
 
 }

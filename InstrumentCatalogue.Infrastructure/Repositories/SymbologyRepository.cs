@@ -53,6 +53,20 @@ public class SymbologyRepository : ISymbologyRepository
         return symbologies.ToList();
     }
 
+    public async Task<ICollection<Symbology>> GetSymbologiesByTypeCodeAsync(ICollection<string> typeCodes, CancellationToken cancellationToken = default)
+    {
+        var command = new CommandDefinition(
+
+            commandText: "SELECT symbology_id, type_code, description, is_active, created_at_utc, last_updated_at_utc from symbologies WHERE type_code = ANY(@type_codes);",
+            parameters: new { type_codes = typeCodes},
+            cancellationToken: cancellationToken
+
+            );
+        var symbologies = await _dbConnection.QueryAsync<Symbology>(command);
+        return symbologies.ToList();
+
+    }
+
     public async Task<Symbology?> GetSymbologyByIdAsync(int symbologyId, CancellationToken cancellationToken = default)
     {
         var command = new CommandDefinition(

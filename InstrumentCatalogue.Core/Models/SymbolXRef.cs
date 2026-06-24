@@ -1,6 +1,8 @@
-﻿namespace InstrumentCatalogue.Core.Models;
+﻿using InstrumentCatalogue.Core.Interfaces.Shared;
 
-public class SymbolXRef
+namespace InstrumentCatalogue.Core.Models;
+
+public class SymbolXRef: ITimeStampAudit
 {
     public Guid SymbolXRefId { get; set; }
 

@@ -1,4 +1,6 @@
-﻿namespace InstrumentCatalogue.Application.DTOs.Instrument;
+﻿using InstrumentCatalogue.Core.Enums;
+
+namespace InstrumentCatalogue.Application.DTOs.Instrument;
 
 public class CreateInstrumentRequest
 {
@@ -14,7 +16,7 @@ public class CreateInstrumentRequest
 
     public DateOnly? ListedDate { get; set; }
 
-    public ICollection<CreateInstrumentSymbolRequest> Symbols { get; set; } = new();
+    public ICollection<CreateInstrumentSymbolRequest> Symbols { get; set; } = new List<CreateInstrumentSymbolRequest>();
 
     public CreateBondRefRequest? BondRef { get; set; }
 

@@ -1,4 +1,6 @@
-﻿namespace InstrumentCatalogue.Application.DTOs.Instrument
+﻿using InstrumentCatalogue.Core.Enums;
+
+namespace InstrumentCatalogue.Application.DTOs.Instrument
 {
     public class CreateBondRefRequest
     {
