@@ -4,7 +4,7 @@ namespace InstrumentCatalogue.Core.Models;
 
 public class SymbolXRef: ITimeStampAudit
 {
-    public Guid SymbolXRefId { get; set; }
+    public Guid SymbolXRefId { get; set; } = Guid.NewGuid();
 
     public int SymbologyId { get; set; }
 

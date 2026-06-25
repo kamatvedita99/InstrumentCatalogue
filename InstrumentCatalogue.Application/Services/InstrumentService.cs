@@ -1,6 +1,8 @@
 ﻿using InstrumentCatalogue.Application.DTOs.Instrument;
 using InstrumentCatalogue.Application.Exceptions;
+using InstrumentCatalogue.Application.Extensions;
 using InstrumentCatalogue.Application.Mappers;
+using InstrumentCatalogue.Core.Enums;
 using InstrumentCatalogue.Core.Interfaces;
 using InstrumentCatalogue.Core.Models;
 using System.Diagnostics.Metrics;
@@ -29,9 +31,9 @@ public class InstrumentService : IInstrumentService
     {
         ArgumentNullException.ThrowIfNull(request);
 
-       var vendorInterface =  await _vendorRepository.GetVendorInterfaceByNamesAsync(request.VendorName, request.InterfaceName, cancellationToken);
+        var vendorInterface = await _vendorRepository.GetVendorInterfaceByNamesAsync(request.VendorName, request.InterfaceName, cancellationToken);
 
-        if(vendorInterface == null)
+        if (vendorInterface == null)
             throw new NotFoundException<int>(nameof(VendorInterface), 0, $"{nameof(VendorInterface)} not found for vendor_name={request.VendorName}, interface_name={request.InterfaceName}");
 
         var symbologyTypeCodesRequest = request.Symbols.Select(s => s.SymbologyTypeCode).ToList();
@@ -42,10 +44,21 @@ public class InstrumentService : IInstrumentService
             var missingSymbologies = symbologyTypeCodesRequest.Except(symbologies.Select(s => s.TypeCode)).ToList();
             var formattedMissingSymbologies = string.Join(",", missingSymbologies);
             throw new NotFoundException<string>(nameof(Symbology), formattedMissingSymbologies, $"Symbologies {formattedMissingSymbologies} not found");
-                
+
         }
 
         var instrument = _instrumentMapper.ToDomain(request, symbologies.ToDictionary(s => s.TypeCode, s => s.SymbologyId));
+        instrument.StatusHistory = new List<InstrumentStatusHistory>()
+        {
+            new InstrumentStatusHistory()
+            {
+                InstrumentStatus = InstrumentStatus.Active,
+                ValidFrom = DateOnly.FromDateTime(DateTime.UtcNow),
+                EffectiveDate = DateOnly.FromDateTime(DateTime.UtcNow),
+
+            }.StampCreated()};
+        
+    
         return new Guid();
     
     }

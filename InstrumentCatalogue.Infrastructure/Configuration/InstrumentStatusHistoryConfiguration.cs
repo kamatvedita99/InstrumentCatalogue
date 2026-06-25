@@ -12,6 +12,8 @@ public class InstrumentStatusHistoryConfiguration : IEntityTypeConfiguration<Ins
 
         builder.HasKey(ish => ish.InstrumentStatusHistoryId);
 
+        builder.Property(ish => ish.InstrumentStatusHistoryId).ValueGeneratedNever();
+
         builder.Property(ish => ish.ValidFrom).IsRequired();
 
         builder.Property(ish => ish.ValidTo)

@@ -12,6 +12,8 @@ public class InstrumentConfiguration: IEntityTypeConfiguration<Instrument>
 
         builder.HasKey(i => i.InstrumentId);
 
+        builder.Property(i => i.InstrumentId).ValueGeneratedNever();
+
         builder.Property(i => i.Name).IsRequired().HasMaxLength(200);
 
         builder.Property(i => i.Type)

@@ -23,7 +23,7 @@ public interface IInstrumentRepository
 
     Task<IEnumerable<Instrument>> GetSnapshotAsync(CancellationToken cancellationToken = default);
 
-    Task<Guid> CreateAsync(Instrument instrument, CancellationToken cancellationToken = default);
+    Task<Guid> CreateAsync(Instrument instrument, int vendorInterfaceId, CancellationToken cancellationToken = default);
 
     Task UpdateAsync(Instrument instrument, CancellationToken cancellationToken = default);
 

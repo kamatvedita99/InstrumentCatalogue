@@ -12,6 +12,8 @@ public class VendorInterfaceSymbolXRefConfiguration : IEntityTypeConfiguration<V
 
         builder.HasKey(visxr => visxr.VendorInterfaceSymbolXRefId);
 
+        builder.Property(visxr => visxr.VendorInterfaceSymbolXRefId).ValueGeneratedNever();
+
         builder.Property(visxr => visxr.CreatedAtUtc).IsRequired();
 
         builder.Property(visxr => visxr.LastUpdatedAtUtc).IsRequired();

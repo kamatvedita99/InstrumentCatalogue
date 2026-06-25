@@ -6,7 +6,7 @@ namespace InstrumentCatalogue.Core.Models;
 
     public class Instrument: ITimeStampAudit
     {
-        public Guid InstrumentId { get; set; }
+        public Guid InstrumentId { get; set; } = Guid.NewGuid();
 
         public string Name { get; set; } = string.Empty;
 

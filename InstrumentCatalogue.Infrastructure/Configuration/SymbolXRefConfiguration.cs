@@ -12,6 +12,8 @@ public class SymbolXRefConfiguration : IEntityTypeConfiguration<SymbolXRef>
 
         builder.HasKey(sxr => sxr.SymbolXRefId);
 
+        builder.Property(sxr => sxr.SymbolXRefId).ValueGeneratedNever();
+
         builder.HasIndex(sxr => new { sxr.InstrumentId, sxr.SymbologyId, sxr.ValidFrom }).IsUnique();
 
         builder.Property(sxr => sxr.ValidFrom).IsRequired();

@@ -4,7 +4,7 @@ namespace InstrumentCatalogue.Core.Models;
 
 public class VendorInterfaceSymbolXRef : ITimeStampAudit
 {
-    public Guid VendorInterfaceSymbolXRefId { get; set; }
+    public Guid VendorInterfaceSymbolXRefId { get; set; } = Guid.NewGuid();
 
     public int VendorInterfaceId { get; set; }
 

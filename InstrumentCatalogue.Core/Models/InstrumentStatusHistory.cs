@@ -5,7 +5,7 @@ namespace InstrumentCatalogue.Core.Models;
 
 public class InstrumentStatusHistory : ITimeStampAudit
 {
-    public Guid InstrumentStatusHistoryId { get; set; }
+    public Guid InstrumentStatusHistoryId { get; set; } = Guid.NewGuid();
 
     public Guid InstrumentId { get; set;}
 

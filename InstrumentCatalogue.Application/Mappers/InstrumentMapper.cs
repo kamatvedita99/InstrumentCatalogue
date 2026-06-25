@@ -14,7 +14,7 @@ public class InstrumentMapper
         _instrumentRefDataMapping = instrumentRefDataMapping;
     }
 
-    public Instrument ToDomain(CreateInstrumentRequest request, Dictionary<string, int>symbologyMapper)
+    public Instrument ToDomain(CreateInstrumentRequest request, Dictionary<string, int> symbologyMapper)
     {
         ArgumentNullException.ThrowIfNull(request);
 
@@ -32,7 +32,7 @@ public class InstrumentMapper
         var refDataMapper = _instrumentRefDataMapping[request.Type];
         var instrumentRefData = refDataMapper.Map(request);
 
-        switch(request.Type)
+        switch (request.Type)
         {
             case InstrumentType.Bond:
                 instrument.BondRefData = (BondRefData)instrumentRefData;
@@ -62,7 +62,7 @@ public class InstrumentMapper
                 }.StampCreated();
 
             }).ToList();
-        
+    
 
         instrument.StampCreated();
 
