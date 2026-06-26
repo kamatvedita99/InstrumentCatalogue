@@ -17,9 +17,8 @@ public class CreateInstrumentRequestValidator: AbstractValidator<CreateInstrumen
         RuleFor(cir => cir.Name).NotEmpty();
 
         RuleFor(cir => cir.Country).NotEmpty()
-                                    .MinimumLength(3)
-                                    .MaximumLength(3)
-                                    .Matches(@"^[A-Z]+$").WithMessage("Country must be in ISO Code format, uppercase alphabets only");
+                                    .Length(2)
+                                    .Matches(@"^[A-Z]+$").WithMessage("Country must be a valid ISO 3166 alpha-2 code (e.g. IN, US).");
 
         RuleFor(cir => cir.Currency).NotEmpty()
                                     .MinimumLength(3)

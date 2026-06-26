@@ -16,6 +16,11 @@ public class SymbolXRefConfiguration : IEntityTypeConfiguration<SymbolXRef>
 
         builder.HasIndex(sxr => new { sxr.InstrumentId, sxr.SymbologyId, sxr.ValidFrom }).IsUnique();
 
+        builder.HasIndex(sxr => new { sxr.SymbologyId, sxr.Symbol })
+            .IsUnique()
+            .HasFilter("valid_to = '9999-12-31'")
+            .HasDatabaseName("ix_symbol_x_ref_symbology_id_symbol_current"); ;
+
         builder.Property(sxr => sxr.ValidFrom).IsRequired();
 
         builder.HasOne<Symbology>(sxr => sxr.Symbology)

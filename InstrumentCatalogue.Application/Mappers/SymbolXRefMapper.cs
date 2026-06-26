@@ -15,7 +15,6 @@ public static class SymbolXRefMapper
             Symbol = symbolXRef.Symbol,
             SymbologyId = symbolXRef.SymbologyId,
             IsPrimary = symbolXRef.IsPrimary,
-            Symbology = SymbologyMapper.ToResponse(symbolXRef.Symbology),
             InstrumentId = symbolXRef.InstrumentId,
             ValidFrom = symbolXRef.ValidFrom,
             ValidTo = symbolXRef.ValidTo,

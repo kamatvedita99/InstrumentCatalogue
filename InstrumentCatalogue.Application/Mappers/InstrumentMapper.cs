@@ -50,6 +50,7 @@ public static class InstrumentMapper
                     SymbologyId = symbologyId,
                     Symbol = symbol.SymbolName,
                     IsPrimary = symbol.IsPrimary,
+                    ValidFrom = DateOnly.FromDateTime(DateTime.UtcNow),
 
                 }.StampCreated();
 

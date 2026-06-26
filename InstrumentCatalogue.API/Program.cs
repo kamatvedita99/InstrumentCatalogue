@@ -36,6 +36,9 @@ builder.Services.AddScoped<IVendorService, VendorService>();
 builder.Services.AddScoped<ISymbologyRepository, SymbologyRepository>();
 builder.Services.AddScoped<ISymbologyService, SymbologyService>();
 
+builder.Services.AddScoped<IInstrumentService, InstrumentService>();
+builder.Services.AddScoped<IInstrumentRepository, InstrumentRepository>();
+
 var app = builder.Build();
 
 app.UseMiddleware<GlobalExceptionMiddleware>();

@@ -54,8 +54,10 @@ public class InstrumentService : IInstrumentService
 
             }.StampCreated()};
 
+        await _instrumentRepository.CreateAsync(instrument, vendorInterface.VendorInterfaceId, cancellationToken);
 
-        return new InstrumentResponse();
+
+        return InstrumentMapper.ToResponse(instrument);
     
     }
 }
