@@ -27,7 +27,7 @@ public class InstrumentService : IInstrumentService
         _instrumentMapper = instrumentMapper ?? throw new ArgumentNullException(nameof(instrumentMapper));
 
     }
-    public async Task<Guid> CreateAsync(CreateInstrumentRequest request, CancellationToken cancellationToken = default)
+    public async Task<InstrumentResponse> CreateAsync(CreateInstrumentRequest request, CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(request);
 
@@ -57,9 +57,9 @@ public class InstrumentService : IInstrumentService
                 EffectiveDate = DateOnly.FromDateTime(DateTime.UtcNow),
 
             }.StampCreated()};
-        
-    
-        return new Guid();
+
+
+        return new InstrumentResponse();
     
     }
 }

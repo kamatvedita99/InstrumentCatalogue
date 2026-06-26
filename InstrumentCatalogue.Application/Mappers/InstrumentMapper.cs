@@ -68,4 +68,24 @@ public class InstrumentMapper
 
         return instrument;
     }
+
+
+    public InstrumentResponse ToResponse(Instrument instrument)
+    {
+        ArgumentNullException.ThrowIfNull(instrument);
+
+        return new InstrumentResponse
+        {
+            InstrumentId = instrument.InstrumentId,
+            Country = instrument.Country,
+            Currency = instrument.Currency,
+            Exchange = instrument.Exchange,
+            Name = instrument.Name,
+            Type = instrument.Type,
+            ListedDate = instrument.ListedDate,
+            InstrumentStatusHistory = instrument.StatusHistory.Select(InstrumentStatusHistoryMapper.ToResponse).ToList(),
+            Symbols = instrument.Symbols.Select(SymbolXRefMapper.ToResponse).ToList(),
+
+        };
+    }
 }

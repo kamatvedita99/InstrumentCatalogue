@@ -26,4 +26,20 @@ public class EtfRefDataMapper : IRefDataMapper
         etfRef.StampCreated();
         return etfRef;
     }
+
+    public static EtfRefResponse ToResponse(EtfRefData etfRefData)
+    {
+        ArgumentNullException.ThrowIfNull(etfRefData);
+
+        return new EtfRefResponse
+        {
+            InstrumentId = etfRefData.InstrumentId,
+            FundManager = etfRefData.FundManager,
+            ReplicationType = etfRefData.ReplicationType,
+            DistributionFrequency = etfRefData.DistributionFrequency,
+            InceptionDate = etfRefData.InceptionDate,
+            UnderlyingIndex = etfRefData.UnderlyingIndex,
+            ExpenseRatio = etfRefData.ExpenseRatio
+        };
+    }
 }
