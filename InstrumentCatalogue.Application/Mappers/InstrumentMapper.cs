@@ -6,15 +6,10 @@ using InstrumentCatalogue.Core.Models;
 
 namespace InstrumentCatalogue.Application.Mappers;
 
-public class InstrumentMapper
+public static class InstrumentMapper
 {
-    private readonly Dictionary<InstrumentType, IRefDataMapper> _instrumentRefDataMapping;
-    public InstrumentMapper(Dictionary<InstrumentType, IRefDataMapper> instrumentRefDataMapping)
-    {
-        _instrumentRefDataMapping = instrumentRefDataMapping;
-    }
-
-    public Instrument ToDomain(CreateInstrumentRequest request, Dictionary<string, int> symbologyMapper)
+    
+    public static Instrument ToDomain(CreateInstrumentRequest request, Dictionary<string, int> symbologyMapper)
     {
         ArgumentNullException.ThrowIfNull(request);
 
@@ -29,19 +24,16 @@ public class InstrumentMapper
 
         };
 
-        var refDataMapper = _instrumentRefDataMapping[request.Type];
-        var instrumentRefData = refDataMapper.Map(request);
-
         switch (request.Type)
         {
             case InstrumentType.Bond:
-                instrument.BondRefData = (BondRefData)instrumentRefData;
+                instrument.BondRefData = BondRefDataMapper.ToDomain(request);
                 break;
             case InstrumentType.Equity:
-                instrument.EquityRefData = (EquityRefData)instrumentRefData;
+                instrument.EquityRefData = EquityRefDataMapper.ToDomain(request);
                 break;
             case InstrumentType.ETF:
-                instrument.EtfRefData = (EtfRefData)instrumentRefData;
+                instrument.EtfRefData = EtfRefDataMapper.ToDomain(request);
                 break;
 
         }
@@ -70,11 +62,11 @@ public class InstrumentMapper
     }
 
 
-    public InstrumentResponse ToResponse(Instrument instrument)
+    public static InstrumentResponse ToResponse(Instrument instrument)
     {
         ArgumentNullException.ThrowIfNull(instrument);
 
-        return new InstrumentResponse
+        var instrumentResponse =  new InstrumentResponse
         {
             InstrumentId = instrument.InstrumentId,
             Country = instrument.Country,
@@ -87,5 +79,21 @@ public class InstrumentMapper
             Symbols = instrument.Symbols.Select(SymbolXRefMapper.ToResponse).ToList(),
 
         };
+
+        switch (instrument.Type)
+        {
+            case InstrumentType.Bond:
+                instrumentResponse.BondRef = BondRefDataMapper.ToResponse(instrument.BondRefData!);
+                break;
+            case InstrumentType.Equity:
+                instrumentResponse.EquityRef = EquityRefDataMapper.ToResponse(instrument.EquityRefData!);
+                break;
+            case InstrumentType.ETF:
+                instrumentResponse.EtfRef = EtfRefDataMapper.ToResponse(instrument.EtfRefData!);
+                break;
+
+        }
+
+        return instrumentResponse;
     }
 }

@@ -1,13 +1,12 @@
 ﻿using InstrumentCatalogue.Application.DTOs.Instrument;
 using InstrumentCatalogue.Core.Models;
 using InstrumentCatalogue.Application.Extensions;
-using InstrumentCatalogue.Core.Interfaces.Shared;
 
 namespace InstrumentCatalogue.Application.Mappers;
 
-public class BondRefDataMapper : IRefDataMapper
+public static class BondRefDataMapper
 {
-    public IInstrumentRefData Map(CreateInstrumentRequest request)
+    public static BondRefData ToDomain(CreateInstrumentRequest request)
     {
         ArgumentNullException.ThrowIfNull(request);
         var bondRefRequest = request.BondRef;
@@ -31,5 +30,27 @@ public class BondRefDataMapper : IRefDataMapper
         bondRef.StampCreated();
         return bondRef;
 
+    }
+
+    public static BondRefResponse ToResponse(BondRefData bondRefData)
+    {
+        ArgumentNullException.ThrowIfNull(bondRefData);
+
+        return new BondRefResponse
+        {
+            InstrumentId = bondRefData.InstrumentId,
+            FaceValue = bondRefData.FaceValue,
+            Issuer = bondRefData?.Issuer,
+            BondStructure = bondRefData?.BondStructure,
+            BondType = bondRefData?.BondType,
+            CouponFrequency = bondRefData?.CouponFrequency,
+            CouponRate = bondRefData?.CouponRate,
+            CreditRating = bondRefData?.CreditRating,
+            MaturityDate = bondRefData?.MaturityDate,
+            Duration = bondRefData?.Duration,
+            IssueDate = bondRefData?.IssueDate,
+
+
+        };
     }
 }

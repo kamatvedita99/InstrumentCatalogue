@@ -5,9 +5,9 @@ using InstrumentCatalogue.Core.Models;
 
 namespace InstrumentCatalogue.Application.Mappers;
 
-public class EtfRefDataMapper : IRefDataMapper
+public static class EtfRefDataMapper
 {
-    public IInstrumentRefData Map(CreateInstrumentRequest request)
+    public static EtfRefData ToDomain(CreateInstrumentRequest request)
     {
         ArgumentNullException.ThrowIfNull(request);
         var etfRefRequest = request.EtfRef;

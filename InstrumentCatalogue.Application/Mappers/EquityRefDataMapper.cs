@@ -1,13 +1,12 @@
 ﻿using InstrumentCatalogue.Application.DTOs.Instrument;
 using InstrumentCatalogue.Application.Extensions;
-using InstrumentCatalogue.Core.Interfaces.Shared;
 using InstrumentCatalogue.Core.Models;
 
 namespace InstrumentCatalogue.Application.Mappers;
 
-public class EquityRefDataMapper : IRefDataMapper
+public static class EquityRefDataMapper
 {
-    public IInstrumentRefData Map(CreateInstrumentRequest request)
+    public static EquityRefData ToDomain(CreateInstrumentRequest request)
     {
         ArgumentNullException.ThrowIfNull(request);
         var equityRefRequest = request.EquityRef;
@@ -24,5 +23,22 @@ public class EquityRefDataMapper : IRefDataMapper
 
         equityRef.StampCreated();
         return equityRef;
+    }
+
+    public static EquityRefResponse ToResponse(EquityRefData equityRefData)
+    {
+        ArgumentNullException.ThrowIfNull(equityRefData);
+
+        return new EquityRefResponse
+        {
+            InstrumentId = equityRefData.InstrumentId,
+            Sector = equityRefData?.Sector,
+            Industry = equityRefData?.Industry,
+            SharesOutstanding = equityRefData?.SharesOutstanding,
+            LotSize = equityRefData.LotSize,
+            ParValue = equityRefData.ParValue
+
+
+        };
     }
 }

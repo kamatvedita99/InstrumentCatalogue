@@ -5,7 +5,6 @@ using InstrumentCatalogue.Application.Mappers;
 using InstrumentCatalogue.Core.Enums;
 using InstrumentCatalogue.Core.Interfaces;
 using InstrumentCatalogue.Core.Models;
-using System.Diagnostics.Metrics;
 
 namespace InstrumentCatalogue.Application.Services;
 
@@ -17,14 +16,11 @@ public class InstrumentService : IInstrumentService
 
     private readonly IInstrumentRepository _instrumentRepository;
 
-    private readonly InstrumentMapper _instrumentMapper;
-
-    public InstrumentService(IVendorRepository vendorRepository, ISymbologyRepository symbologyRepository, IInstrumentRepository instrumentRepository, InstrumentMapper instrumentMapper)
+    public InstrumentService(IVendorRepository vendorRepository, ISymbologyRepository symbologyRepository, IInstrumentRepository instrumentRepository)
     {
         _vendorRepository = vendorRepository ?? throw new ArgumentNullException(nameof(vendorRepository));
         _symbologyRepository = symbologyRepository ?? throw new ArgumentNullException(nameof(symbologyRepository));
         _instrumentRepository = instrumentRepository ?? throw new ArgumentNullException(nameof(instrumentRepository));
-        _instrumentMapper = instrumentMapper ?? throw new ArgumentNullException(nameof(instrumentMapper));
 
     }
     public async Task<InstrumentResponse> CreateAsync(CreateInstrumentRequest request, CancellationToken cancellationToken = default)
@@ -47,7 +43,7 @@ public class InstrumentService : IInstrumentService
 
         }
 
-        var instrument = _instrumentMapper.ToDomain(request, symbologies.ToDictionary(s => s.TypeCode, s => s.SymbologyId));
+        var instrument = InstrumentMapper.ToDomain(request, symbologies.ToDictionary(s => s.TypeCode, s => s.SymbologyId));
         instrument.StatusHistory = new List<InstrumentStatusHistory>()
         {
             new InstrumentStatusHistory()
