@@ -9,7 +9,7 @@ public static class SymbolXRefMapper
     {
         ArgumentNullException.ThrowIfNull(symbolXRef);
 
-        return new SymbolXRefResponse
+        var symbolXRefResponse =  new SymbolXRefResponse
         {
             SymbolXRefId = symbolXRef.SymbolXRefId,
             Symbol = symbolXRef.Symbol,
@@ -18,7 +18,13 @@ public static class SymbolXRefMapper
             InstrumentId = symbolXRef.InstrumentId,
             ValidFrom = symbolXRef.ValidFrom,
             ValidTo = symbolXRef.ValidTo,
-            VendorInterfaceSymbols = symbolXRef.VendorInterfaceSymbols.Select(VendorInterfaceSymbolMapper.ToResponse).ToList()
+            VendorInterfaceSymbols = symbolXRef.VendorInterfaceSymbols.Select(VendorInterfaceSymbolMapper.ToResponse).ToList(),
+            
         };
+
+        if (symbolXRef.Symbology != null)
+            symbolXRefResponse.Symbology = SymbologyMapper.ToResponse(symbolXRef.Symbology);
+
+        return symbolXRefResponse;
     }
 }

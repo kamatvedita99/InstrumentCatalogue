@@ -8,6 +8,7 @@ using System.Data;
 using FluentValidation;
 using InstrumentCatalogue.API.Middleware;
 using InstrumentCatalogue.Application.Validators.Vendor;
+using Dapper;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -29,6 +30,8 @@ builder.Services.AddScoped<IDbConnection>(sp =>
     new NpgsqlConnection(
         builder.Configuration.GetConnectionString("DefaultConnection")));
 Dapper.DefaultTypeMap.MatchNamesWithUnderscores = true;
+SqlMapper.AddTypeHandler(new DateOnlyTypeHandler());
+SqlMapper.AddTypeHandler(new NullableDateOnlyTypeHandler());
 
 builder.Services.AddScoped<IVendorRepository, VendorRepository>();
 builder.Services.AddScoped<IVendorService, VendorService>();

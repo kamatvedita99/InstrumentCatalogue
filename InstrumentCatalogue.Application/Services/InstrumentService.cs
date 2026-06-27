@@ -60,4 +60,14 @@ public class InstrumentService : IInstrumentService
         return InstrumentMapper.ToResponse(instrument);
     
     }
+
+    public async Task<InstrumentResponse?> GetByIdAsync(Guid instrumentId, CancellationToken cancellationToken = default)
+    {
+        var instrument = await _instrumentRepository.GetByIdAsync(instrumentId, cancellationToken);
+        
+        if(instrument is null)
+            throw new NotFoundException<Guid>(nameof(Instrument), instrumentId);
+
+        return InstrumentMapper.ToResponse(instrument);
+    }
 }

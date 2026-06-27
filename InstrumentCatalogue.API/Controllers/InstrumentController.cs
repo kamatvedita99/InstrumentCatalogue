@@ -25,4 +25,13 @@ public class InstrumentController : ControllerBase
 
         return Created(string.Empty, ApiResponse<InstrumentResponse>.Success(instrumentResponse));
     }
+
+    [HttpGet]
+    [Route("{id}")]
+    public async Task<ActionResult<ApiResponse<InstrumentResponse?>>> GetByIdAsync(Guid id, CancellationToken cancellationToken)
+    {
+        var instrumentResponse = await _instrumentService.GetByIdAsync(id, cancellationToken);
+
+        return Ok(ApiResponse<InstrumentResponse?>.Success(instrumentResponse));
+    }
 }
