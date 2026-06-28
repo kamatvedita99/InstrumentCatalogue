@@ -53,9 +53,161 @@ public class InstrumentRepository : IInstrumentRepository
 
     }
 
-    public Task<PagedResult<Instrument>> GetAsync(InstrumentFilter filter, CancellationToken cancellationToken = default)
+    public async Task<PagedResult<Instrument>> GetAsync(InstrumentFilter filter, CancellationToken cancellationToken = default)
     {
-        throw new NotImplementedException();
+        ArgumentNullException.ThrowIfNull(filter);
+
+        var conditions = new List<string> { "1=1" };
+        var parameters = new DynamicParameters();
+        var joins = new List<string>();
+
+        if(filter.Type.HasValue)
+        {
+            conditions.Add("i.type = @type");
+            parameters.Add("type", filter.Type.Value.ToString());
+        }
+
+        if(!string.IsNullOrWhiteSpace(filter.Currency))
+        {
+            conditions.Add("i.currency = @currency");
+            parameters.Add("currency", filter.Currency);
+        }
+
+        if (!string.IsNullOrWhiteSpace(filter.Country))
+        {
+            conditions.Add("i.country = @country");
+            parameters.Add("country", filter.Country);
+        }
+
+        if (!string.IsNullOrWhiteSpace(filter.Exchange))
+        {
+            conditions.Add("i.exchange = @exchange");
+            parameters.Add("exchange", filter.Exchange);
+        }
+
+        if(!string.IsNullOrWhiteSpace(filter.Name))
+        {
+            conditions.Add("i.name ILIKE @name");
+            parameters.Add("name", $"%{filter.Name}%");
+        }
+
+        if(filter.Status.HasValue)
+        {
+            conditions.Add("ish.instrument_status = @status");
+            parameters.Add("status", filter.Status.Value.ToString());
+        }
+
+        if(filter.ListedDateFrom.HasValue)
+        {
+            conditions.Add("i.listed_date >= @listed_date_from");
+            parameters.Add("listed_date_from", filter.ListedDateFrom.Value.ToString());
+        }
+
+        if (filter.ListedDateTo.HasValue)
+        {
+            conditions.Add("i.listed_date <= @listed_date_to");
+            parameters.Add("listed_date_to", filter.ListedDateTo.Value.ToString());
+        }
+
+        if (filter.BondFilter != null)
+        {
+            joins.Add("INNER JOIN bond_ref_data brd ON brd.instrument_id = i.instrument_id");
+
+            if (filter.BondFilter.BondType.HasValue)
+            {
+                conditions.Add("brd.bond_type = @bond_type");
+                parameters.Add("bond_type", filter.BondFilter.BondType.Value.ToString());
+            }
+            if (filter.BondFilter.BondStructure.HasValue)
+            {
+                conditions.Add("brd.bond_structure = @bond_structure");
+                parameters.Add("bond_structure", filter.BondFilter.BondStructure.Value.ToString());
+            }
+            if (filter.BondFilter.MaturityBefore.HasValue)
+            {
+                conditions.Add("brd.maturity_date <= @maturity_before");
+                parameters.Add("maturity_before", filter.BondFilter.MaturityBefore.Value);
+            }
+            if (filter.BondFilter.MaturityAfter.HasValue)
+            {
+                conditions.Add("brd.maturity_date >= @maturity_after");
+                parameters.Add("maturity_after", filter.BondFilter.MaturityAfter.Value);
+            }
+            if (filter.BondFilter.IssueDate.HasValue)
+            {
+                conditions.Add("brd.issue_date = @issue_date");
+                parameters.Add("issue_date", filter.BondFilter.IssueDate.Value);
+            }
+            if (!string.IsNullOrWhiteSpace(filter.BondFilter.CreditRating))
+            {
+                conditions.Add("brd.credit_rating = @credit_rating");
+                parameters.Add("credit_rating", filter.BondFilter.CreditRating);
+            }
+            if (!string.IsNullOrWhiteSpace(filter.BondFilter.Issuer))
+            {
+                conditions.Add("brd.issuer = @issuer");
+                parameters.Add("issuer", filter.BondFilter.Issuer);
+            }
+        }
+
+        if (filter.EquityFilter != null)
+        {
+            joins.Add("INNER JOIN equity_ref_data erd ON erd.instrument_id = i.instrument_id");
+
+            if (!string.IsNullOrWhiteSpace(filter.EquityFilter.Sector))
+            {
+                conditions.Add("erd.sector = @sector");
+                parameters.Add("sector", filter.EquityFilter.Sector);
+            }
+            if (!string.IsNullOrWhiteSpace(filter.EquityFilter.Industry))
+            {
+                conditions.Add("erd.industry = @industry");
+                parameters.Add("industry", filter.EquityFilter.Industry);
+            }
+        }
+
+        if (filter.EtfFilter != null)
+        {
+            joins.Add("INNER JOIN etf_ref_data etfrd ON etfrd.instrument_id = i.instrument_id");
+
+            if (!string.IsNullOrWhiteSpace(filter.EtfFilter.UnderlyingIndex))
+            {
+                conditions.Add("etfrd.underlying_index = @underlying_index");
+                parameters.Add("underlying_index", filter.EtfFilter.UnderlyingIndex);
+            }
+            if (filter.EtfFilter.ReplicationType.HasValue)
+            {
+                conditions.Add("etfrd.replication_type = @replication_type");
+                parameters.Add("replication_type", filter.EtfFilter.ReplicationType.Value.ToString());
+            }
+            if (filter.EtfFilter.DistributionFrequency.HasValue)
+            {
+                conditions.Add("etfrd.distribution_frequency = @distribution_frequency");
+                parameters.Add("distribution_frequency", filter.EtfFilter.DistributionFrequency.Value.ToString());
+            }
+            if (filter.EtfFilter.InceptionDate.HasValue)
+            {
+                conditions.Add("etfrd.inception_date = @inception_date");
+                parameters.Add("inception_date", filter.EtfFilter.InceptionDate.Value);
+            }
+        }
+
+        var sql = $@"
+        SELECT i.instrument_id, i.name, i.type, i.exchange, i.currency, i.country, 
+               i.listed_date, i.created_at_utc, i.last_updated_at_utc
+        FROM instruments i
+        INNER JOIN instrument_status_history ish 
+            ON ish.instrument_id = i.instrument_id 
+            AND ish.valid_to = '9999-12-31'
+        {string.Join(" ", joins)}
+        WHERE {string.Join(" AND ", conditions)}
+        ORDER BY i.instrument_id
+    ";
+
+        var command = new CommandDefinition(sql, parameters, cancellationToken: cancellationToken);
+        var instruments = await _dbConnection.QueryAsync<Instrument>(command);
+
+        return new PagedResult<Instrument> { Items = instruments.ToList(), NextCursor = null };
     }
 
     public async Task<Instrument?> GetByIdAsync(Guid instrumentId, CancellationToken cancellationToken = default)
@@ -112,9 +264,9 @@ public class InstrumentRepository : IInstrumentRepository
             return null;
 
         
-        instrument.EquityRefData = await multiResultSet.ReadFirstOrDefaultAsync<EquityRefData>();
-        instrument.BondRefData = await multiResultSet.ReadFirstOrDefaultAsync<BondRefData>();
-        instrument.EtfRefData = await multiResultSet.ReadFirstOrDefaultAsync<EtfRefData>();
+        instrument.EquityRefData = await multiResultSet.ReadSingleOrDefaultAsync<EquityRefData>();
+        instrument.BondRefData = await multiResultSet.ReadSingleOrDefaultAsync<BondRefData>();
+        instrument.EtfRefData = await multiResultSet.ReadSingleOrDefaultAsync<EtfRefData>();
 
         instrument.StatusHistory = (await multiResultSet.ReadAsync<InstrumentStatusHistory>()).ToList();
 
