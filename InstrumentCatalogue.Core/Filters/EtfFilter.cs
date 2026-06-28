@@ -1,12 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using InstrumentCatalogue.Core.Enums;
 
-namespace InstrumentCatalogue.Core.Filters
+namespace InstrumentCatalogue.Core.Filters;
+
+public class EtfFilter
 {
-    internal class EtfFilter
-    {
-    }
+    public string? UnderlyingIndex { get; set; }
+    public EtfReplicationType? ReplicationType { get; set; }
+    public EtfDistributionFrequency? DistributionFrequency { get; set; }
+    public DateOnly? InceptionDate { get; set; }
 }
