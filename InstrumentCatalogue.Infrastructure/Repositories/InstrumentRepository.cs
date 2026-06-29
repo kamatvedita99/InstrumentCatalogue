@@ -1,5 +1,6 @@
 ﻿using Dapper;
 using InstrumentCatalogue.Core.Common;
+using InstrumentCatalogue.Core.Constants;
 using InstrumentCatalogue.Core.Enums;
 using InstrumentCatalogue.Core.Filters;
 using InstrumentCatalogue.Core.Helpers;
@@ -228,8 +229,49 @@ public class InstrumentRepository : IInstrumentRepository
             
         }
 
+        var instrumentIds = instruments.Select(i => i.InstrumentId).ToArray();
 
-            return new PagedResult<Instrument> { Items = instruments, NextCursor = nextCursor };
+        if (instrumentIds.Length > 0)
+        {
+            const string refDataSql = @"
+        SELECT instrument_id, sector, industry, shares_outstanding, lot_size, par_value, created_at_utc, last_updated_at_utc
+        FROM equity_ref_data WHERE instrument_id = ANY(@ids);
+
+        SELECT instrument_id, face_value, coupon_rate, coupon_frequency, issuer, issue_date, maturity_date,
+               credit_rating, bond_type, bond_structure, duration, created_at_utc, last_updated_at_utc
+        FROM bond_ref_data WHERE instrument_id = ANY(@ids);
+
+        SELECT instrument_id, fund_manager, underlying_index, replication_type, distribution_frequency,
+               inception_date, expense_ratio, created_at_utc, last_updated_at_utc
+        FROM etf_ref_data WHERE instrument_id = ANY(@ids);
+
+        SELECT instrument_status_history_id, instrument_id, valid_from, valid_to, effective_date,
+               notes, instrument_status, created_at_utc, last_updated_at_utc
+        FROM instrument_status_history
+        WHERE instrument_id = ANY(@ids) AND valid_to = '" + TemporalDefaults.CurrentSentinelSql + @"';
+    ";
+
+            using var multi = await _dbConnection.QueryMultipleAsync(
+                new CommandDefinition(refDataSql, new { ids = instrumentIds }, cancellationToken: cancellationToken));
+
+            var equityById = (await multi.ReadAsync<EquityRefData>()).ToDictionary(x => x.InstrumentId);
+            var bondById = (await multi.ReadAsync<BondRefData>()).ToDictionary(x => x.InstrumentId);
+            var etfById = (await multi.ReadAsync<EtfRefData>()).ToDictionary(x => x.InstrumentId);
+            var statusById = (await multi.ReadAsync<InstrumentStatusHistory>()).ToDictionary(x => x.InstrumentId);
+
+            foreach (var instrument in instruments)
+            {
+                instrument.EquityRefData = equityById.GetValueOrDefault(instrument.InstrumentId);
+                instrument.BondRefData = bondById.GetValueOrDefault(instrument.InstrumentId);
+                instrument.EtfRefData = etfById.GetValueOrDefault(instrument.InstrumentId);
+
+                if (statusById.TryGetValue(instrument.InstrumentId, out var status))
+                    instrument.StatusHistory = new List<InstrumentStatusHistory> { status };
+            }
+        }
+
+
+        return new PagedResult<Instrument> { Items = instruments, NextCursor = nextCursor };
         
     }
 

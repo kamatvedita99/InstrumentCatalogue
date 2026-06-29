@@ -8,6 +8,24 @@ namespace InstrumentCatalogue.Application.Mappers;
 
 public static class InstrumentMapper
 {
+    private static Instrument MapToInstrumentRef(CreateInstrumentRequest request, Instrument instrument)
+    {
+        switch (request.Type)
+        {
+            case InstrumentType.Bond:
+                instrument.BondRefData = BondRefDataMapper.ToDomain(request);
+                break;
+            case InstrumentType.Equity:
+                instrument.EquityRefData = EquityRefDataMapper.ToDomain(request);
+                break;
+            case InstrumentType.ETF:
+                instrument.EtfRefData = EtfRefDataMapper.ToDomain(request);
+                break;
+
+        }
+
+        return instrument;
+    }
     
     public static Instrument ToDomain(CreateInstrumentRequest request, Dictionary<string, int> symbologyMapper)
     {
@@ -24,19 +42,7 @@ public static class InstrumentMapper
 
         };
 
-        switch (request.Type)
-        {
-            case InstrumentType.Bond:
-                instrument.BondRefData = BondRefDataMapper.ToDomain(request);
-                break;
-            case InstrumentType.Equity:
-                instrument.EquityRefData = EquityRefDataMapper.ToDomain(request);
-                break;
-            case InstrumentType.ETF:
-                instrument.EtfRefData = EtfRefDataMapper.ToDomain(request);
-                break;
-
-        }
+        instrument = MapToInstrumentRef(request, instrument);
 
         instrument.Symbols = request.Symbols.Select(
             (symbol) =>
@@ -62,6 +68,26 @@ public static class InstrumentMapper
         return instrument;
     }
 
+    private static InstrumentResponse MapToInstrumentRefResponse(Instrument instrument, InstrumentResponse instrumentResponse)
+    {
+        switch (instrument.Type)
+        {
+            case InstrumentType.Bond when instrument.BondRefData != null:
+                instrumentResponse.BondRef = BondRefDataMapper.ToResponse(instrument.BondRefData);
+                break;
+            case InstrumentType.Equity when instrument.EquityRefData != null:
+                instrumentResponse.EquityRef = EquityRefDataMapper.ToResponse(instrument.EquityRefData);
+                break;
+            case InstrumentType.ETF when instrument.EtfRefData != null:
+                instrumentResponse.EtfRef = EtfRefDataMapper.ToResponse(instrument.EtfRefData);
+                break;
+
+        }
+
+        return instrumentResponse;
+
+    }
+
 
     public static InstrumentResponse ToResponse(Instrument instrument)
     {
@@ -81,19 +107,7 @@ public static class InstrumentMapper
 
         };
 
-        switch (instrument.Type)
-        {
-            case InstrumentType.Bond:
-                instrumentResponse.BondRef = BondRefDataMapper.ToResponse(instrument.BondRefData!);
-                break;
-            case InstrumentType.Equity:
-                instrumentResponse.EquityRef = EquityRefDataMapper.ToResponse(instrument.EquityRefData!);
-                break;
-            case InstrumentType.ETF:
-                instrumentResponse.EtfRef = EtfRefDataMapper.ToResponse(instrument.EtfRefData!);
-                break;
-
-        }
+        instrumentResponse = MapToInstrumentRefResponse(instrument, instrumentResponse);
 
         return instrumentResponse;
     }
