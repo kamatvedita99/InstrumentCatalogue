@@ -2,6 +2,7 @@
 using InstrumentCatalogue.Core.Common;
 using InstrumentCatalogue.Core.Enums;
 using InstrumentCatalogue.Core.Filters;
+using InstrumentCatalogue.Core.Helpers;
 using InstrumentCatalogue.Core.Interfaces;
 using InstrumentCatalogue.Core.Models;
 using InstrumentCatalogue.Core.ReadModels;
@@ -53,21 +54,22 @@ public class InstrumentRepository : IInstrumentRepository
 
     }
 
-    public async Task<PagedResult<Instrument>> GetAsync(InstrumentFilter filter, CancellationToken cancellationToken = default)
+    public async Task<PagedResult<Instrument>> GetAsync(PagedRequest<InstrumentFilter> pagedRequest, CancellationToken cancellationToken = default)
     {
-        ArgumentNullException.ThrowIfNull(filter);
+        ArgumentNullException.ThrowIfNull(pagedRequest);
 
+        var filter = pagedRequest.Filter;
         var conditions = new List<string> { "1=1" };
         var parameters = new DynamicParameters();
         var joins = new List<string>();
 
-        if(filter.Type.HasValue)
+        if (filter.Type.HasValue)
         {
             conditions.Add("i.type = @type");
             parameters.Add("type", filter.Type.Value.ToString());
         }
 
-        if(!string.IsNullOrWhiteSpace(filter.Currency))
+        if (!string.IsNullOrWhiteSpace(filter.Currency))
         {
             conditions.Add("i.currency = @currency");
             parameters.Add("currency", filter.Currency);
@@ -85,19 +87,19 @@ public class InstrumentRepository : IInstrumentRepository
             parameters.Add("exchange", filter.Exchange);
         }
 
-        if(!string.IsNullOrWhiteSpace(filter.Name))
+        if (!string.IsNullOrWhiteSpace(filter.Name))
         {
             conditions.Add("i.name ILIKE @name");
             parameters.Add("name", $"%{filter.Name}%");
         }
 
-        if(filter.Status.HasValue)
+        if (filter.Status.HasValue)
         {
             conditions.Add("ish.instrument_status = @status");
             parameters.Add("status", filter.Status.Value.ToString());
         }
 
-        if(filter.ListedDateFrom.HasValue)
+        if (filter.ListedDateFrom.HasValue)
         {
             conditions.Add("i.listed_date >= @listed_date_from");
             parameters.Add("listed_date_from", filter.ListedDateFrom.Value.ToString());
@@ -192,6 +194,16 @@ public class InstrumentRepository : IInstrumentRepository
             }
         }
 
+        if (!string.IsNullOrWhiteSpace(pagedRequest.Cursor))
+        {
+            var cursorPayload = CursorHelper.Decode<InstrumentCursorPayload>(pagedRequest.Cursor);
+            conditions.Add("(i.created_at_utc < @cursor_created_at OR (i.created_at_utc = @cursor_created_at AND i.instrument_id < @cursor_instrument_id))");
+            parameters.Add("cursor_created_at", cursorPayload.CreatedAtUtc);
+            parameters.Add("cursor_instrument_id", cursorPayload.InstrumentId);
+        }
+        var limit = "LIMIT @limit";
+        parameters.Add("limit", pagedRequest.PageSize + 1);
+
         var sql = $@"
         SELECT i.instrument_id, i.name, i.type, i.exchange, i.currency, i.country, 
                i.listed_date, i.created_at_utc, i.last_updated_at_utc
@@ -201,13 +213,24 @@ public class InstrumentRepository : IInstrumentRepository
             AND ish.valid_to = '9999-12-31'
         {string.Join(" ", joins)}
         WHERE {string.Join(" AND ", conditions)}
-        ORDER BY i.instrument_id
+        ORDER BY i.created_at_utc DESC, i.instrument_id DESC
+        {limit}
     ";
 
         var command = new CommandDefinition(sql, parameters, cancellationToken: cancellationToken);
-        var instruments = await _dbConnection.QueryAsync<Instrument>(command);
+        var instruments = (await _dbConnection.QueryAsync<Instrument>(command)).ToList();
+        string? nextCursor = null;
+        if (instruments.Count > pagedRequest.PageSize)
+        {
+            instruments.RemoveAt(instruments.Count - 1);
+            var nextCursorPayload = new InstrumentCursorPayload(instruments[instruments.Count-1].CreatedAtUtc, instruments[instruments.Count-1].InstrumentId);
+            nextCursor = CursorHelper.Encode(nextCursorPayload);
+            
+        }
 
-        return new PagedResult<Instrument> { Items = instruments.ToList(), NextCursor = null };
+
+            return new PagedResult<Instrument> { Items = instruments, NextCursor = nextCursor };
+        
     }
 
     public async Task<Instrument?> GetByIdAsync(Guid instrumentId, CancellationToken cancellationToken = default)

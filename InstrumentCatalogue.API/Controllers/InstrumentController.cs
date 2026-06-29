@@ -2,6 +2,8 @@
 using InstrumentCatalogue.API.ReadModels;
 using InstrumentCatalogue.Application.DTOs.Instrument;
 using InstrumentCatalogue.Application.Services;
+using InstrumentCatalogue.Core.Common;
+using InstrumentCatalogue.Core.Filters;
 using Microsoft.AspNetCore.Mvc;
 
 namespace InstrumentCatalogue.API.Controllers;
@@ -33,5 +35,14 @@ public class InstrumentController : ControllerBase
         var instrumentResponse = await _instrumentService.GetByIdAsync(id, cancellationToken);
 
         return Ok(ApiResponse<InstrumentResponse?>.Success(instrumentResponse));
+    }
+
+    [HttpGet]
+    public async Task<ActionResult<PagedResult<InstrumentResponse>>> GetAsync(PagedRequest<InstrumentFilter> pagedRequest, IValidator<InstrumentFilter> validator, CancellationToken cancellationToken = default)
+    {
+        await validator.ValidateAndThrowAsync(pagedRequest.Filter, cancellationToken);
+        var pagedResponse = await _instrumentService.GetAllAsync(pagedRequest, cancellationToken);
+
+        return Ok(ApiResponse<PagedResult<InstrumentResponse>>.Success(pagedResponse));
     }
 }

@@ -59,5 +59,8 @@ public class InstrumentConfiguration: IEntityTypeConfiguration<Instrument>
 
         builder.HasIndex(i => i.Type);
 
+        builder.HasIndex(i => new { i.CreatedAtUtc, i.InstrumentId })
+       .IsDescending(true, true);
+
     }
 }

@@ -24,6 +24,17 @@ public class GlobalExceptionMiddleware
                     await _next(context);
                 }
 
+                catch(InvalidCursorException ex)
+                {
+                    _logger.LogWarning(ex, "{path}", context.Request.Path);
+                    context.Response.StatusCode = (int)HttpStatusCode.BadRequest;
+                    context.Response.ContentType = "application/json";
+                    var response = ApiResponse<object>.Fail(new ErrorDetail { Message = ex.Message, TraceId = context.TraceIdentifier });
+
+                    await context.Response.WriteAsJsonAsync(response);
+
+                }
+
                 catch (ValidationException ex)
                 {
                     _logger.LogWarning(ex, "Validation failed {path}", context.Request.Path);

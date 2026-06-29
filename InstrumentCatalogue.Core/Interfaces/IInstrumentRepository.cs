@@ -8,7 +8,7 @@ namespace InstrumentCatalogue.Core.Interfaces;
 
 public interface IInstrumentRepository
 {
-    Task<PagedResult<Instrument>> GetAsync(InstrumentFilter filter,
+    Task<PagedResult<Instrument>> GetAsync(PagedRequest<InstrumentFilter> pagedRequest,
                                            CancellationToken cancellationToken=default);
 
     Task<Instrument?> GetByIdAsync(Guid instrumentId, CancellationToken cancellationToken=default);

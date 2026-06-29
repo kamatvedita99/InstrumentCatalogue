@@ -2,7 +2,9 @@
 using InstrumentCatalogue.Application.Exceptions;
 using InstrumentCatalogue.Application.Extensions;
 using InstrumentCatalogue.Application.Mappers;
+using InstrumentCatalogue.Core.Common;
 using InstrumentCatalogue.Core.Enums;
+using InstrumentCatalogue.Core.Filters;
 using InstrumentCatalogue.Core.Interfaces;
 using InstrumentCatalogue.Core.Models;
 
@@ -59,6 +61,16 @@ public class InstrumentService : IInstrumentService
 
         return InstrumentMapper.ToResponse(instrument);
     
+    }
+
+    public async Task<PagedResult<InstrumentResponse>> GetAllAsync(PagedRequest<InstrumentFilter> pagedRequest, CancellationToken cancellationToken = default)
+    {
+        var pagedResponse = await _instrumentRepository.GetAsync(pagedRequest, cancellationToken);
+
+        return new PagedResult<InstrumentResponse> {
+            NextCursor = pagedResponse.NextCursor,
+            Items = pagedResponse.Items.Select(InstrumentMapper.ToResponse).ToList() ?? new List<InstrumentResponse>()
+            };
     }
 
     public async Task<InstrumentResponse?> GetByIdAsync(Guid instrumentId, CancellationToken cancellationToken = default)
