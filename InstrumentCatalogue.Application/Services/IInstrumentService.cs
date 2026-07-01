@@ -1,4 +1,5 @@
 ﻿using InstrumentCatalogue.Application.DTOs.Instrument;
+using InstrumentCatalogue.Core.Cache;
 using InstrumentCatalogue.Core.Common;
 using InstrumentCatalogue.Core.Filters;
 
@@ -12,5 +13,5 @@ public interface IInstrumentService
 
     Task<PagedResult<InstrumentResponse>> GetAllAsync(PagedRequest<InstrumentFilter> pagedRequest, CancellationToken cancellationToken = default);
 
-    Task<InstrumentResponse?> ResolveSymbolAsync(string symbology, string symbol, CancellationToken cancellationToken = default);
+    Task<ResolvedSymbol?> ResolveSymbolAsync(string symbology, string symbol, CancellationToken cancellationToken = default);
 }

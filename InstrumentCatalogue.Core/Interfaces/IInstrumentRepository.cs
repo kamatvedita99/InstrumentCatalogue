@@ -1,4 +1,5 @@
-﻿using InstrumentCatalogue.Core.Common;
+﻿using InstrumentCatalogue.Core.Cache;
+using InstrumentCatalogue.Core.Common;
 using InstrumentCatalogue.Core.Enums;
 using InstrumentCatalogue.Core.Filters;
 using InstrumentCatalogue.Core.Models;
@@ -17,7 +18,7 @@ public interface IInstrumentRepository
 
     Task<ICollection<InstrumentStatusHistory>> GetStatusHistoryAsync(Guid instrumentId, CancellationToken cancellationToken = default);
 
-    Task<Instrument?> ResolveSymbolAsync(string symbology, string symbol, CancellationToken cancellationToken = default);
+    Task<ResolvedSymbol?> ResolveSymbolAsync(string symbology, string symbol, CancellationToken cancellationToken = default);
 
     Task<PagedResult<InstrumentSearchResult>> SearchAsync(string searchTerm, CancellationToken cancellationToken = default);
 

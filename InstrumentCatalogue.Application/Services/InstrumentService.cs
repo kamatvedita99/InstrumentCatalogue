@@ -2,6 +2,7 @@
 using InstrumentCatalogue.Application.Exceptions;
 using InstrumentCatalogue.Application.Extensions;
 using InstrumentCatalogue.Application.Mappers;
+using InstrumentCatalogue.Core.Cache;
 using InstrumentCatalogue.Core.Common;
 using InstrumentCatalogue.Core.Enums;
 using InstrumentCatalogue.Core.Filters;
@@ -57,7 +58,12 @@ public class InstrumentService : IInstrumentService
 
         //get from db
         var symbologies = await _symbologyRepository.GetSymbologiesByTypeCodeAsync(missingSymbologiesFromCache, cancellationToken);
-        //update the map
+        foreach (var symbology in symbologies)
+        {
+            symbologyMap[symbology.TypeCode] = symbology.SymbologyId;
+            _cache.Set(symbology.TypeCode, symbology.SymbologyId);
+        }
+        
 
         if (symbologyMap.Count != symbologyTypeCodesRequest.Count)
         {
@@ -118,5 +124,18 @@ public class InstrumentService : IInstrumentService
             throw new NotFoundException<Guid>(nameof(Instrument), instrumentId);
 
         return InstrumentMapper.ToResponse(instrument);
+    }
+
+    public async Task<ResolvedSymbol?> ResolveSymbolAsync(string symbology, string symbol, CancellationToken cancellationToken = default)
+    {
+        ArgumentNullException.ThrowIfNullOrWhiteSpace(symbol);
+        ArgumentNullException.ThrowIfNullOrWhiteSpace(symbology);
+
+        var resolvedSymbol =  await _instrumentRepository.ResolveSymbolAsync(symbology, symbol, cancellationToken);
+        if (resolvedSymbol is null)
+            throw new NotFoundException<int>(nameof(SymbolXRef), 0, $"Could not find resolution for symbology:{symbology} & symbol:{symbol}");
+
+        return resolvedSymbol;
+
     }
 }

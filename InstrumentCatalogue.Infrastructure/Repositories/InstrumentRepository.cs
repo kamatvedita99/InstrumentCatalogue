@@ -1,4 +1,5 @@
 ﻿using Dapper;
+using InstrumentCatalogue.Core.Cache;
 using InstrumentCatalogue.Core.Common;
 using InstrumentCatalogue.Core.Constants;
 using InstrumentCatalogue.Core.Enums;
@@ -375,9 +376,21 @@ public class InstrumentRepository : IInstrumentRepository
         throw new NotImplementedException();
     }
 
-    public Task<Instrument?> ResolveSymbolAsync(string symbology, string symbol, CancellationToken cancellationToken = default)
+    public async Task<ResolvedSymbol?> ResolveSymbolAsync(string symbology, string symbol, CancellationToken cancellationToken = default)
     {
-        throw new NotImplementedException();
+        ArgumentNullException.ThrowIfNullOrWhiteSpace(symbol);
+        ArgumentNullException.ThrowIfNullOrWhiteSpace(symbology);
+
+        var sql = "SELECT i.instrument_id, i.type, i.name " +
+                "FROM instruments i " +
+                "INNER JOIN symbol_x_ref sxr ON i.instrument_id = sxr.instrument_id " +
+                "INNER JOIN symbologies s ON s.symbology_id = sxr.symbology_id " +
+                "WHERE sxr.Symbol = @symbol " +
+                    "AND s.type_code = @type_code " +
+                    $"AND sxr.valid_to = '{TemporalDefaults.CurrentSentinelSql}'";
+        var command = new CommandDefinition(sql, parameters: new {type_code = symbology, symbol = symbol}, cancellationToken:cancellationToken);
+
+       return await _dbConnection.QuerySingleOrDefaultAsync<ResolvedSymbol>(command);
     }
 
     public Task<PagedResult<InstrumentSearchResult>> SearchAsync(string searchTerm, CancellationToken cancellationToken = default)

@@ -11,9 +11,13 @@ public class SymbologyService : ISymbologyService
 {
     private readonly ISymbologyRepository _symbologyRepository;
 
-    public SymbologyService(ISymbologyRepository symbologyRepository)
+    private readonly ISymbologyCache _cache;
+
+    public SymbologyService(ISymbologyRepository symbologyRepository, ISymbologyCache symbologyCache)
     {
         _symbologyRepository = symbologyRepository;
+        _cache = symbologyCache;
+
     }
 
     public async Task<SymbologyResponse> CreateSymbologyAsync(CreateSymbologyRequest request, CancellationToken cancellationToken = default)
@@ -21,6 +25,7 @@ public class SymbologyService : ISymbologyService
         ArgumentNullException.ThrowIfNull(request);
         var symbology = SymbologyMapper.ToDomain(request);
         await _symbologyRepository.CreateSymbologyAsync(symbology, cancellationToken);
+        _cache.Set(symbology.TypeCode, symbology.SymbologyId);
         return SymbologyMapper.ToResponse(symbology);
         
     }
@@ -59,6 +64,9 @@ public class SymbologyService : ISymbologyService
         symbology.StampUpdated();
 
         await _symbologyRepository.UpdateSymbologyAsync(symbology, cancellationToken);
+        // No cache invalidation needed here. TypeCode and SymbologyId are immutable post-creation.
         return SymbologyMapper.ToResponse(symbology);
     }
 }
+
+
