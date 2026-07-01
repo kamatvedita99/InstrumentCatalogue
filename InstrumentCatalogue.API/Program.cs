@@ -9,6 +9,7 @@ using FluentValidation;
 using InstrumentCatalogue.API.Middleware;
 using InstrumentCatalogue.Application.Validators.Vendor;
 using Dapper;
+using InstrumentCatalogue.Infrastructure.Cache;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -26,6 +27,9 @@ builder.Services.AddValidatorsFromAssemblyContaining<CreateVendorRequestValidato
 builder.Services.AddDbContext<CatalogueDbContext>(options => options.UseNpgsql(
     builder.Configuration.GetConnectionString("DefaultConnection")).UseSnakeCaseNamingConvention());
 
+builder.Services.AddMemoryCache();
+builder.Services.AddSingleton<ISymbologyCache, MemorySymbologyCache>();
+
 builder.Services.AddScoped<IDbConnection>(sp =>
     new NpgsqlConnection(
         builder.Configuration.GetConnectionString("DefaultConnection")));
@@ -41,6 +45,7 @@ builder.Services.AddScoped<ISymbologyService, SymbologyService>();
 
 builder.Services.AddScoped<IInstrumentService, InstrumentService>();
 builder.Services.AddScoped<IInstrumentRepository, InstrumentRepository>();
+
 
 var app = builder.Build();
 

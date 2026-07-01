@@ -40,7 +40,7 @@ public class InstrumentController : ControllerBase
     [HttpGet]
     public async Task<ActionResult<PagedResult<InstrumentResponse>>> GetAsync([FromQuery] PagedRequest<InstrumentFilter> pagedRequest, IValidator<InstrumentFilter> validator, CancellationToken cancellationToken = default)
     {
-        pagedRequest.Filter = pagedRequest.Filter ?? new InstrumentFilter();
+        pagedRequest.Filter ??= new InstrumentFilter();
         await validator.ValidateAndThrowAsync(pagedRequest.Filter, cancellationToken);
         var pagedResponse = await _instrumentService.GetAllAsync(pagedRequest, cancellationToken);
 

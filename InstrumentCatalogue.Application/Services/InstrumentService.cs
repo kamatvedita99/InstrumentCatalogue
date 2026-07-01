@@ -7,6 +7,7 @@ using InstrumentCatalogue.Core.Enums;
 using InstrumentCatalogue.Core.Filters;
 using InstrumentCatalogue.Core.Interfaces;
 using InstrumentCatalogue.Core.Models;
+using System.Threading;
 
 namespace InstrumentCatalogue.Application.Services;
 
@@ -18,11 +19,55 @@ public class InstrumentService : IInstrumentService
 
     private readonly IInstrumentRepository _instrumentRepository;
 
-    public InstrumentService(IVendorRepository vendorRepository, ISymbologyRepository symbologyRepository, IInstrumentRepository instrumentRepository)
+    private readonly ISymbologyCache _cache;
+
+    public InstrumentService(IVendorRepository vendorRepository, ISymbologyRepository symbologyRepository, IInstrumentRepository instrumentRepository, ISymbologyCache symbologyCache)
     {
         _vendorRepository = vendorRepository ?? throw new ArgumentNullException(nameof(vendorRepository));
         _symbologyRepository = symbologyRepository ?? throw new ArgumentNullException(nameof(symbologyRepository));
         _instrumentRepository = instrumentRepository ?? throw new ArgumentNullException(nameof(instrumentRepository));
+        _cache = symbologyCache ?? throw new ArgumentNullException(nameof(symbologyCache));
+
+
+    }
+
+    private async Task<Dictionary<string, int>> GetSymbologyMapping(CreateInstrumentRequest request, CancellationToken cancellationToken)
+    {
+        var symbologyTypeCodesRequest = request.Symbols.Select(s => s.SymbologyTypeCode).ToList();
+        var symbologyMap = new Dictionary<string, int>();
+        var missingSymbologiesFromCache = new List<string>();
+        
+        //get from cache
+        foreach(var symbolTypeCode in symbologyTypeCodesRequest)
+        {
+            if(_cache.TryGet(symbolTypeCode, out int symbologyId))
+            {
+                symbologyMap[symbolTypeCode] = symbologyId;
+            }
+
+            else
+            {
+                missingSymbologiesFromCache.Add(symbolTypeCode.ToString());
+            }
+        }
+
+        
+        if (symbologyMap.Count == symbologyTypeCodesRequest.Count)
+            return symbologyMap;
+
+        //get from db
+        var symbologies = await _symbologyRepository.GetSymbologiesByTypeCodeAsync(missingSymbologiesFromCache, cancellationToken);
+        //update the map
+
+        if (symbologyMap.Count != symbologyTypeCodesRequest.Count)
+        {
+            var missingSymbologies = symbologyTypeCodesRequest.Except(symbologyMap.Keys.ToList()).ToList();
+            var formattedMissingSymbologies = string.Join(",", missingSymbologies);
+            throw new NotFoundException<string>(nameof(Symbology), formattedMissingSymbologies, $"Symbologies {formattedMissingSymbologies} not found");
+
+        }
+
+        return symbologyMap;
 
     }
     public async Task<InstrumentResponse> CreateAsync(CreateInstrumentRequest request, CancellationToken cancellationToken = default)
@@ -34,18 +79,10 @@ public class InstrumentService : IInstrumentService
         if (vendorInterface == null)
             throw new NotFoundException<int>(nameof(VendorInterface), 0, $"{nameof(VendorInterface)} not found for vendor_name={request.VendorName}, interface_name={request.InterfaceName}");
 
-        var symbologyTypeCodesRequest = request.Symbols.Select(s => s.SymbologyTypeCode).ToList();
-        var symbologies = await _symbologyRepository.GetSymbologiesByTypeCodeAsync(symbologyTypeCodesRequest, cancellationToken);
 
-        if (symbologies.Count != symbologyTypeCodesRequest.Count)
-        {
-            var missingSymbologies = symbologyTypeCodesRequest.Except(symbologies.Select(s => s.TypeCode)).ToList();
-            var formattedMissingSymbologies = string.Join(",", missingSymbologies);
-            throw new NotFoundException<string>(nameof(Symbology), formattedMissingSymbologies, $"Symbologies {formattedMissingSymbologies} not found");
+        var symbologyMap = await GetSymbologyMapping(request, cancellationToken);
 
-        }
-
-        var instrument = InstrumentMapper.ToDomain(request, symbologies.ToDictionary(s => s.TypeCode, s => s.SymbologyId));
+        var instrument = InstrumentMapper.ToDomain(request, symbologyMap);
         instrument.StatusHistory = new List<InstrumentStatusHistory>()
         {
             new InstrumentStatusHistory()

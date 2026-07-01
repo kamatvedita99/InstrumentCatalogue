@@ -11,4 +11,6 @@ public interface IInstrumentService
     Task<InstrumentResponse?> GetByIdAsync(Guid instrumentId, CancellationToken cancellationToken = default);
 
     Task<PagedResult<InstrumentResponse>> GetAllAsync(PagedRequest<InstrumentFilter> pagedRequest, CancellationToken cancellationToken = default);
+
+    Task<InstrumentResponse?> ResolveSymbolAsync(string symbology, string symbol, CancellationToken cancellationToken = default);
 }
