@@ -8,8 +8,10 @@ using InstrumentCatalogue.Core.Enums;
 using InstrumentCatalogue.Core.Filters;
 using InstrumentCatalogue.Core.Interfaces;
 using InstrumentCatalogue.Core.Models;
+using Microsoft.Extensions.Logging;
 
 namespace InstrumentCatalogue.Application.Services;
+
 
 public class InstrumentService : IInstrumentService
 {
@@ -19,14 +21,20 @@ public class InstrumentService : IInstrumentService
 
     private readonly IInstrumentRepository _instrumentRepository;
 
-    private readonly ISymbologyCache _cache;
+    private readonly ISymbologyCache _symbologyCache;
 
-    public InstrumentService(IVendorRepository vendorRepository, ISymbologyRepository symbologyRepository, IInstrumentRepository instrumentRepository, ISymbologyCache symbologyCache)
+    private readonly ISymbolResolutionCache _symbolResolutionCache;
+
+    private readonly ILogger<InstrumentService> _logger;
+
+    public InstrumentService(IVendorRepository vendorRepository, ISymbologyRepository symbologyRepository, IInstrumentRepository instrumentRepository, ISymbologyCache symbologyCache, ISymbolResolutionCache symbolResolutionCache, ILogger<InstrumentService> logger)
     {
         _vendorRepository = vendorRepository ?? throw new ArgumentNullException(nameof(vendorRepository));
         _symbologyRepository = symbologyRepository ?? throw new ArgumentNullException(nameof(symbologyRepository));
         _instrumentRepository = instrumentRepository ?? throw new ArgumentNullException(nameof(instrumentRepository));
-        _cache = symbologyCache ?? throw new ArgumentNullException(nameof(symbologyCache));
+        _symbologyCache = symbologyCache ?? throw new ArgumentNullException(nameof(symbologyCache));
+        _symbolResolutionCache = symbolResolutionCache ?? throw new ArgumentNullException(nameof(symbolResolutionCache));
+        _logger = logger ?? throw new ArgumentNullException(nameof(logger));
 
 
     }
@@ -40,7 +48,7 @@ public class InstrumentService : IInstrumentService
         //get from cache
         foreach(var symbolTypeCode in symbologyTypeCodesRequest)
         {
-            if(_cache.TryGet(symbolTypeCode, out int symbologyId))
+            if(_symbologyCache.TryGet(symbolTypeCode, out int symbologyId))
             {
                 symbologyMap[symbolTypeCode] = symbologyId;
             }
@@ -60,7 +68,7 @@ public class InstrumentService : IInstrumentService
         foreach (var symbology in symbologies)
         {
             symbologyMap[symbology.TypeCode] = symbology.SymbologyId;
-            _cache.Set(symbology.TypeCode, symbology.SymbologyId);
+            _symbologyCache.Set(symbology.TypeCode, symbology.SymbologyId);
         }
         
 
@@ -100,7 +108,10 @@ public class InstrumentService : IInstrumentService
 
         await _instrumentRepository.CreateAsync(instrument, vendorInterface.VendorInterfaceId, cancellationToken);
 
-
+        foreach(var symbol in instrument.Symbols)
+        {
+            await _symbolResolutionCache.SetAsync(symbol.SymbologyId, symbol.Symbol, new ResolvedSymbol { InstrumentId = instrument.InstrumentId, Name = instrument.Name, Type = instrument.Type }, cancellationToken);
+        }
         return InstrumentMapper.ToResponse(instrument);
     
     }
@@ -130,11 +141,35 @@ public class InstrumentService : IInstrumentService
         ArgumentNullException.ThrowIfNullOrWhiteSpace(symbol);
         ArgumentNullException.ThrowIfNullOrWhiteSpace(symbology);
 
-        var resolvedSymbol =  await _instrumentRepository.ResolveSymbolAsync(symbology, symbol, cancellationToken);
+        var isSymbologyCached = _symbologyCache.TryGet(symbology, out var symbologyId);
+        if (!isSymbologyCached)
+        {
+            _logger.LogDebug("Cache miss for symbology {symbology}", symbology);
+
+            var symbologyDetail = (await _symbologyRepository.GetSymbologiesByTypeCodeAsync(new List<string> { symbology }, cancellationToken)).SingleOrDefault();
+            
+            if(symbologyDetail is null)
+                throw new NotFoundException<string>(nameof(Symbology), $"Could not find symbology with type code: {symbology}");
+
+            symbologyId = symbologyDetail.SymbologyId;
+            _symbologyCache.Set(symbology, symbologyId);
+            
+        }
+
+        var resolvedSymbolCache = await _symbolResolutionCache.GetAsync(symbologyId, symbol, cancellationToken);
+        var resolvedSymbol =  resolvedSymbolCache ?? await _instrumentRepository.ResolveSymbolAsync(symbology, symbol, cancellationToken);
+
         if (resolvedSymbol is null)
             throw new NotFoundException<string>(nameof(SymbolXRef), $"Could not find resolution for symbology:{symbology} & symbol:{symbol}");
 
-        return resolvedSymbol;
+        if (resolvedSymbolCache is null)
+        {
+            await _symbolResolutionCache.SetAsync(symbologyId, symbol, resolvedSymbol, cancellationToken);
+            _logger.LogDebug("Cache miss for symbology {symbology} symbol {symbol}", symbology, symbol);
+        }
+
+
+            return resolvedSymbol;
 
     }
 }

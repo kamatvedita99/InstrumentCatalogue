@@ -10,6 +10,7 @@ using InstrumentCatalogue.API.Middleware;
 using InstrumentCatalogue.Application.Validators.Vendor;
 using Dapper;
 using InstrumentCatalogue.Infrastructure.Cache;
+using StackExchange.Redis;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -29,6 +30,12 @@ builder.Services.AddDbContext<CatalogueDbContext>(options => options.UseNpgsql(
 
 builder.Services.AddMemoryCache();
 builder.Services.AddSingleton<ISymbologyCache, MemorySymbologyCache>();
+
+
+builder.Services.AddSingleton<IConnectionMultiplexer>(sp =>
+                    ConnectionMultiplexer.Connect(builder.Configuration.GetConnectionString("Redis")));
+
+builder.Services.AddSingleton<ISymbolResolutionCache, SymbolResolutionCache>();
 
 builder.Services.AddScoped<IDbConnection>(sp =>
     new NpgsqlConnection(
