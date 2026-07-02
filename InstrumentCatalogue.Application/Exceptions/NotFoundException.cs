@@ -13,7 +13,7 @@
     {
         
 
-        public TKey Id {  get; init; }
+        public TKey? Id {  get; init; }
 
         public NotFoundException(string entityName, TKey id, string? message = null) : base(message ?? $"{entityName} with Id: {id} was not found")
         {
@@ -23,5 +23,12 @@
 
         }
 
+        public NotFoundException(string entityName, string message)
+        : base(message)
+        {
+            EntityName = entityName;
+        }
+
     }
+
 }

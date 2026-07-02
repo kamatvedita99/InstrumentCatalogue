@@ -8,7 +8,6 @@ using InstrumentCatalogue.Core.Enums;
 using InstrumentCatalogue.Core.Filters;
 using InstrumentCatalogue.Core.Interfaces;
 using InstrumentCatalogue.Core.Models;
-using System.Threading;
 
 namespace InstrumentCatalogue.Application.Services;
 
@@ -83,7 +82,7 @@ public class InstrumentService : IInstrumentService
         var vendorInterface = await _vendorRepository.GetVendorInterfaceByNamesAsync(request.VendorName, request.InterfaceName, cancellationToken);
 
         if (vendorInterface == null)
-            throw new NotFoundException<int>(nameof(VendorInterface), 0, $"{nameof(VendorInterface)} not found for vendor_name={request.VendorName}, interface_name={request.InterfaceName}");
+            throw new NotFoundException<string>(nameof(VendorInterface), $"{nameof(VendorInterface)} not found for vendor_name={request.VendorName}, interface_name={request.InterfaceName}");
 
 
         var symbologyMap = await GetSymbologyMapping(request, cancellationToken);
@@ -133,7 +132,7 @@ public class InstrumentService : IInstrumentService
 
         var resolvedSymbol =  await _instrumentRepository.ResolveSymbolAsync(symbology, symbol, cancellationToken);
         if (resolvedSymbol is null)
-            throw new NotFoundException<int>(nameof(SymbolXRef), 0, $"Could not find resolution for symbology:{symbology} & symbol:{symbol}");
+            throw new NotFoundException<string>(nameof(SymbolXRef), $"Could not find resolution for symbology:{symbology} & symbol:{symbol}");
 
         return resolvedSymbol;
 
