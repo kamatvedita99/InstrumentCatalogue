@@ -2,6 +2,7 @@
 using InstrumentCatalogue.API.ReadModels;
 using InstrumentCatalogue.Application.DTOs.Instrument;
 using InstrumentCatalogue.Application.Services;
+using InstrumentCatalogue.Core.Cache;
 using InstrumentCatalogue.Core.Common;
 using InstrumentCatalogue.Core.Filters;
 using Microsoft.AspNetCore.Mvc;
@@ -45,5 +46,14 @@ public class InstrumentController : ControllerBase
         var pagedResponse = await _instrumentService.GetAllAsync(pagedRequest, cancellationToken);
 
         return Ok(ApiResponse<PagedResult<InstrumentResponse>>.Success(pagedResponse));
+    }
+
+    [HttpGet("resolve")]
+    public async Task<ActionResult<ApiResponse<ResolvedSymbol?>>> ResolveSymbolAsync([FromQuery]string typecode, [FromQuery]string symbol, CancellationToken cancellationToken = default)
+    {
+        var resolvedSymbol = await _instrumentService.ResolveSymbolAsync(typecode, symbol, cancellationToken);
+
+        return Ok(ApiResponse<ResolvedSymbol?>.Success(resolvedSymbol));
+
     }
 }
