@@ -139,6 +139,29 @@ public class InstrumentRepositoryTests : IAsyncLifetime
 ```
 
 ---
+## Observability & Monitoring
+
+### Planned (pre-July 23, high priority)
+- **Serilog** — structured JSON logging, replaces default ASP.NET Core logging. Foundation for everything else.
+- **Correlation IDs** — unique ID per request propagated through all log entries, so a single request can be traced end-to-end across all log lines.
+- **Health check endpoints** — `/health` (is the process alive) and `/health/ready` (are dependencies — Postgres, Redis — reachable). Standard expectation for any deployed service.
+- **Polly telemetry** — Polly v8 has built-in telemetry events (retry attempts, circuit state changes). Hook into these to log when the circuit opens/closes.
+
+### Deferred (post-deployment, requires infrastructure)
+- **Prometheus metrics** — expose `/metrics` endpoint, track request latency (p50/p99), cache hit/miss ratio, circuit breaker state.
+- **Grafana dashboards** — visualize Prometheus metrics. Target dashboards: Resolve endpoint latency, Redis cache hit rate, circuit breaker state over time.
+- **ELK stack** (Elasticsearch + Logstash + Kibana) — centralized log aggregation and search. Serilog has a direct Elasticsearch sink. Kibana for log visualization and alerting.
+
+### Rationale for deferral
+Infrastructure setup (Docker Compose with Prometheus + Grafana + ELK) is a substantial effort best done alongside the AWS deployment phase. Serilog + correlation IDs + health checks deliver the most interview value for the least setup cost and are achievable before July 23.
+
+
+## Rate Limiting
+- Protect the Resolve endpoint from OMS/market pricer overload
+- ASP.NET Core built-in AddRateLimiter middleware
+- Token bucket or sliding window algorithm
+- Different limits per endpoint — Resolve gets higher limit than admin endpoints
+- Deferred pending observability and deployment work
 
 ## Azure Support
 

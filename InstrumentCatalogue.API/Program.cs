@@ -11,6 +11,10 @@ using InstrumentCatalogue.Application.Validators.Vendor;
 using Dapper;
 using InstrumentCatalogue.Infrastructure.Cache;
 using StackExchange.Redis;
+using Polly.Retry;
+using Polly;
+using Polly.CircuitBreaker;
+using InstrumentCatalogue.Infrastructure.Configuration;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -31,11 +35,37 @@ builder.Services.AddDbContext<CatalogueDbContext>(options => options.UseNpgsql(
 builder.Services.AddMemoryCache();
 builder.Services.AddSingleton<ISymbologyCache, MemorySymbologyCache>();
 
+var redisConnectionString = builder.Configuration.GetConnectionString("Redis") ?? throw new InvalidOperationException("Redis connection settings not configured");
 
 builder.Services.AddSingleton<IConnectionMultiplexer>(sp =>
-                    ConnectionMultiplexer.Connect(builder.Configuration.GetConnectionString("Redis")));
+                    ConnectionMultiplexer.Connect(redisConnectionString));
 
 builder.Services.AddSingleton<ISymbolResolutionCache, SymbolResolutionCache>();
+
+var redisSettings = builder.Configuration
+    .GetSection("Resilience:Redis")
+    .Get<RedisResilienceConfiguration>()
+    ?? throw new InvalidOperationException("Redis resilience settings not configured");
+
+var retryOptions = new RetryStrategyOptions
+{
+    ShouldHandle = new PredicateBuilder().Handle<RedisConnectionException>().Handle<RedisTimeoutException>(),
+    BackoffType = DelayBackoffType.Exponential,
+    UseJitter = true,
+    MaxRetryAttempts = redisSettings.RetryCount,
+    Delay = TimeSpan.FromMilliseconds(redisSettings.RetryDelayMs),
+};
+
+var circuitBreakerOptions = new CircuitBreakerStrategyOptions
+{
+    FailureRatio = redisSettings.FailureRatio,
+    SamplingDuration = TimeSpan.FromSeconds(redisSettings.SamplingDurationSeconds),
+    MinimumThroughput = redisSettings.MinimumThroughput,
+    BreakDuration = TimeSpan.FromSeconds(redisSettings.BreakDurationSeconds),
+    ShouldHandle = new PredicateBuilder().Handle<RedisConnectionException>().Handle<RedisTimeoutException>()
+};
+var resiliencePipeline = new ResiliencePipelineBuilder().AddRetry(retryOptions).AddCircuitBreaker(circuitBreakerOptions).Build();
+builder.Services.AddSingleton(resiliencePipeline);
 
 builder.Services.AddScoped<IDbConnection>(sp =>
     new NpgsqlConnection(
