@@ -15,9 +15,12 @@ public class InstrumentController : ControllerBase
 {
     private readonly IInstrumentService _instrumentService;
 
-    public InstrumentController(IInstrumentService instrumentService)
+    private readonly ILogger<InstrumentController> _logger;
+
+    public InstrumentController(IInstrumentService instrumentService, ILogger<InstrumentController> logger)
     {
         _instrumentService = instrumentService ?? throw new ArgumentNullException(nameof(instrumentService));
+        _logger = logger ?? throw new ArgumentNullException(nameof(_logger));
     }
     [HttpPost]
     public async Task<ActionResult<ApiResponse<InstrumentResponse>>> CreateAsync([FromBody]CreateInstrumentRequest request, IValidator<CreateInstrumentRequest> validator, CancellationToken cancellationToken = default)
@@ -51,8 +54,8 @@ public class InstrumentController : ControllerBase
     [HttpGet("resolve")]
     public async Task<ActionResult<ApiResponse<ResolvedSymbol?>>> ResolveSymbolAsync([FromQuery]string typecode, [FromQuery]string symbol, CancellationToken cancellationToken = default)
     {
+       
         var resolvedSymbol = await _instrumentService.ResolveSymbolAsync(typecode, symbol, cancellationToken);
-
         return Ok(ApiResponse<ResolvedSymbol?>.Success(resolvedSymbol));
 
     }

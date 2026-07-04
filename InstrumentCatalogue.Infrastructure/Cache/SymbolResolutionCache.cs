@@ -4,6 +4,7 @@ using Microsoft.Extensions.Logging;
 using Polly;
 using Polly.CircuitBreaker;
 using StackExchange.Redis;
+using System.Diagnostics;
 using System.Text.Json;
 
 namespace InstrumentCatalogue.Infrastructure.Cache;
@@ -65,7 +66,7 @@ public class SymbolResolutionCache : ISymbolResolutionCache
         
         try
         {
-            
+            var sw = Stopwatch.StartNew();
             var value =
                 await _resiliencePipeline.ExecuteAsync<RedisValue>(async ct =>
 
@@ -76,9 +77,11 @@ public class SymbolResolutionCache : ISymbolResolutionCache
         
             if(value == RedisValue.Null)
                 return null;
-
-       
-            return JsonSerializer.Deserialize<ResolvedSymbol?>(value);
+            
+            var result = JsonSerializer.Deserialize<ResolvedSymbol?>(value);
+            sw.Stop();
+            _logger.LogInformation("Redis GetAsync took {ElapsedMs}ms", sw.ElapsedMilliseconds);
+            return result;
         }
 
         catch(JsonException ex)

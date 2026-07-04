@@ -141,6 +141,7 @@ public class InstrumentService : IInstrumentService
         ArgumentNullException.ThrowIfNullOrWhiteSpace(symbol);
         ArgumentNullException.ThrowIfNullOrWhiteSpace(symbology);
 
+        _logger.LogTrace("Fetching symbology");
         var isSymbologyCached = _symbologyCache.TryGet(symbology, out var symbologyId);
         if (!isSymbologyCached)
         {
@@ -156,6 +157,7 @@ public class InstrumentService : IInstrumentService
             
         }
 
+        _logger.LogTrace("Fetching symbol");
         var resolvedSymbolCache = await _symbolResolutionCache.GetAsync(symbologyId, symbol, cancellationToken);
         var resolvedSymbol =  resolvedSymbolCache ?? await _instrumentRepository.ResolveSymbolAsync(symbology, symbol, cancellationToken);
 
@@ -167,7 +169,6 @@ public class InstrumentService : IInstrumentService
             await _symbolResolutionCache.SetAsync(symbologyId, symbol, resolvedSymbol, cancellationToken);
             _logger.LogDebug("Cache miss for symbology {symbology} symbol {symbol}", symbology, symbol);
         }
-
 
             return resolvedSymbol;
 
