@@ -3,13 +3,15 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.8.34408.163
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "InstrumentCatalogue.API", "InstrumentCatalogue.API\InstrumentCatalogue.API.csproj", "{585166EE-B0C0-4A6C-93C2-5B558AA9C101}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "InstrumentCatalogue.API", "InstrumentCatalogue.API\InstrumentCatalogue.API.csproj", "{585166EE-B0C0-4A6C-93C2-5B558AA9C101}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "InstrumentCatalogue.Core", "InstrumentCatalogue.Core\InstrumentCatalogue.Core.csproj", "{9472FC7F-2BC8-40AD-B388-34E23257D9A4}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "InstrumentCatalogue.Core", "InstrumentCatalogue.Core\InstrumentCatalogue.Core.csproj", "{9472FC7F-2BC8-40AD-B388-34E23257D9A4}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "InstrumentCatalogue.Application", "InstrumentCatalogue.Application\InstrumentCatalogue.Application.csproj", "{E9250496-0C18-443E-B217-A8A3010F894C}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "InstrumentCatalogue.Application", "InstrumentCatalogue.Application\InstrumentCatalogue.Application.csproj", "{E9250496-0C18-443E-B217-A8A3010F894C}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "InstrumentCatalogue.Infrastructure", "InstrumentCatalogue.Infrastructure\InstrumentCatalogue.Infrastructure.csproj", "{FF49C84A-0E07-46A3-A89B-1E7CC649EA6D}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "InstrumentCatalogue.Infrastructure", "InstrumentCatalogue.Infrastructure\InstrumentCatalogue.Infrastructure.csproj", "{FF49C84A-0E07-46A3-A89B-1E7CC649EA6D}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "InstrumentCatalogue.Tests", "InstrumentCatalogue.Tests\InstrumentCatalogue.Tests.csproj", "{28150DB8-6F9B-4E74-8FDC-810A8ABB80ED}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -33,6 +35,10 @@ Global
 		{FF49C84A-0E07-46A3-A89B-1E7CC649EA6D}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{FF49C84A-0E07-46A3-A89B-1E7CC649EA6D}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{FF49C84A-0E07-46A3-A89B-1E7CC649EA6D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{28150DB8-6F9B-4E74-8FDC-810A8ABB80ED}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{28150DB8-6F9B-4E74-8FDC-810A8ABB80ED}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{28150DB8-6F9B-4E74-8FDC-810A8ABB80ED}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{28150DB8-6F9B-4E74-8FDC-810A8ABB80ED}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
