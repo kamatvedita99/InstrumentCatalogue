@@ -6,6 +6,8 @@ using InstrumentCatalogue.Core.Interfaces;
 using InstrumentCatalogue.Core.Models;
 using Microsoft.Extensions.Logging;
 using NSubstitute;
+using NSubstitute.ExceptionExtensions;
+using StackExchange.Redis;
 
 public class InstrumentServiceTests
 {
@@ -210,4 +212,5 @@ public class InstrumentServiceTests
         await _instrumentRepository.Received(1).ResolveSymbolAsync(symbologyTypeCode, symbol, default);
 
     }
+
 }
