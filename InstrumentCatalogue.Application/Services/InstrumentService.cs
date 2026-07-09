@@ -1,4 +1,5 @@
 ﻿using InstrumentCatalogue.Application.DTOs.Instrument;
+using InstrumentCatalogue.Application.DTOs.SymbolXRef;
 using InstrumentCatalogue.Application.Exceptions;
 using InstrumentCatalogue.Application.Extensions;
 using InstrumentCatalogue.Application.Mappers;
@@ -9,6 +10,8 @@ using InstrumentCatalogue.Core.Filters;
 using InstrumentCatalogue.Core.Interfaces;
 using InstrumentCatalogue.Core.Models;
 using Microsoft.Extensions.Logging;
+using System.ComponentModel.DataAnnotations;
+using System.Threading;
 
 namespace InstrumentCatalogue.Application.Services;
 
@@ -83,6 +86,26 @@ public class InstrumentService : IInstrumentService
         return symbologyMap;
 
     }
+
+    private async Task<int> GetSymbologyIdAsync(string symbology, CancellationToken cancellationToken)
+    {
+        _logger.LogTrace("Fetching symbology");
+        var isSymbologyCached = _symbologyCache.TryGet(symbology, out var symbologyId);
+        if (!isSymbologyCached)
+        {
+            _logger.LogDebug("Cache miss for symbology {symbology}", symbology);
+
+            var symbologyDetail = (await _symbologyRepository.GetSymbologiesByTypeCodeAsync(new List<string> { symbology }, cancellationToken)).SingleOrDefault();
+
+            if (symbologyDetail is null)
+                throw new NotFoundException<string>(nameof(Symbology), $"Could not find symbology with type code: {symbology}");
+
+            symbologyId = symbologyDetail.SymbologyId;
+            _symbologyCache.Set(symbology, symbologyId);
+
+        }
+        return symbologyId;
+    }
     public async Task<InstrumentResponse> CreateAsync(CreateInstrumentRequest request, CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(request);
@@ -141,22 +164,8 @@ public class InstrumentService : IInstrumentService
         ArgumentNullException.ThrowIfNullOrWhiteSpace(symbol);
         ArgumentNullException.ThrowIfNullOrWhiteSpace(symbology);
 
-        _logger.LogTrace("Fetching symbology");
-        var isSymbologyCached = _symbologyCache.TryGet(symbology, out var symbologyId);
-        if (!isSymbologyCached)
-        {
-            _logger.LogDebug("Cache miss for symbology {symbology}", symbology);
-
-            var symbologyDetail = (await _symbologyRepository.GetSymbologiesByTypeCodeAsync(new List<string> { symbology }, cancellationToken)).SingleOrDefault();
-            
-            if(symbologyDetail is null)
-                throw new NotFoundException<string>(nameof(Symbology), $"Could not find symbology with type code: {symbology}");
-
-            symbologyId = symbologyDetail.SymbologyId;
-            _symbologyCache.Set(symbology, symbologyId);
-            
-        }
-
+        var symbologyId = await GetSymbologyIdAsync(symbology, cancellationToken);
+        
         _logger.LogTrace("Fetching symbol");
         var resolvedSymbolCache = await _symbolResolutionCache.GetAsync(symbologyId, symbol, cancellationToken);
         var resolvedSymbol =  resolvedSymbolCache ?? await _instrumentRepository.ResolveSymbolAsync(symbology, symbol, cancellationToken);
@@ -172,5 +181,18 @@ public class InstrumentService : IInstrumentService
 
             return resolvedSymbol;
 
+    }
+
+    public async Task<SymbolXRefResponse> CreateSymbolAsync(Guid instrumentId, CreateInstrumentSymbolRequest request, CancellationToken cancellationToken = default)
+    {
+        ArgumentNullException.ThrowIfNull(request);
+
+        var symbologyId = await GetSymbologyIdAsync(request.SymbologyTypeCode, cancellationToken);
+
+        var symbol = SymbolXRefMapper.ToDomain(instrumentId, symbologyId, request);
+
+        await _instrumentRepository.CreateSymbolAsync(symbol, cancellationToken);
+
+        return SymbolXRefMapper.ToResponse(symbol);
     }
 }

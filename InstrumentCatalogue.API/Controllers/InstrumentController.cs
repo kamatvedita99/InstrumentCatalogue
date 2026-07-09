@@ -1,10 +1,12 @@
 ﻿using FluentValidation;
 using InstrumentCatalogue.API.ReadModels;
 using InstrumentCatalogue.Application.DTOs.Instrument;
+using InstrumentCatalogue.Application.DTOs.SymbolXRef;
 using InstrumentCatalogue.Application.Services;
 using InstrumentCatalogue.Core.Cache;
 using InstrumentCatalogue.Core.Common;
 using InstrumentCatalogue.Core.Filters;
+using InstrumentCatalogue.Core.Models;
 using Microsoft.AspNetCore.Mvc;
 
 namespace InstrumentCatalogue.API.Controllers;
@@ -58,5 +60,14 @@ public class InstrumentController : ControllerBase
         var resolvedSymbol = await _instrumentService.ResolveSymbolAsync(typecode, symbol, cancellationToken);
         return Ok(ApiResponse<ResolvedSymbol?>.Success(resolvedSymbol));
 
+    }
+
+    [HttpPost("{id}/symbols")]
+    public async Task<ActionResult<ApiResponse<SymbolXRefResponse>>> CreateSymbolAsync(Guid id, [FromBody] CreateInstrumentSymbolRequest createSymbolRequest, IValidator<CreateInstrumentSymbolRequest> validator, CancellationToken cancellationToken = default)    
+    {
+        await validator.ValidateAndThrowAsync(createSymbolRequest, cancellationToken);
+
+       var createdSymbol =  await _instrumentService.CreateSymbolAsync(id, createSymbolRequest, cancellationToken);
+       return Created(string.Empty, ApiResponse<SymbolXRefResponse>.Success(createdSymbol));
     }
 }

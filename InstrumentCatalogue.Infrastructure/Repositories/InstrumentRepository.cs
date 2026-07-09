@@ -9,7 +9,11 @@ using InstrumentCatalogue.Core.Interfaces;
 using InstrumentCatalogue.Core.Models;
 using InstrumentCatalogue.Core.ReadModels;
 using InstrumentCatalogue.Infrastructure.Persistence;
+using Microsoft.EntityFrameworkCore;
+using System.ComponentModel.DataAnnotations;
 using System.Data;
+using System.Data.Common;
+using System.Threading;
 
 namespace InstrumentCatalogue.Infrastructure.Repositories;
 
@@ -23,6 +27,7 @@ public class InstrumentRepository : IInstrumentRepository
         _dbContext = dbContext;
         _dbConnection = dbConnection;
     }
+
     public async Task<Guid> CreateAsync(Instrument instrument, int vendorInterfaceId, CancellationToken cancellationToken = default)
     {
         await using var transaction = await _dbContext.Database.BeginTransactionAsync(cancellationToken);
@@ -54,6 +59,30 @@ public class InstrumentRepository : IInstrumentRepository
         }
 
 
+    }
+
+    public async Task<Guid> CreateSymbolAsync(SymbolXRef symbolXRef, CancellationToken cancellationToken = default)
+    {
+       var existingSymbol = await GetActiveSymbolAsync(symbolXRef.InstrumentId, symbolXRef.SymbologyId, cancellationToken);
+
+        
+            if (existingSymbol is not null)
+            {
+                existingSymbol.ValidTo = DateOnly.FromDateTime(DateTime.UtcNow).AddDays(-1);
+                existingSymbol.LastUpdatedAtUtc = DateTime.UtcNow;
+            }
+        
+            await _dbContext.AddAsync<SymbolXRef>(symbolXRef, cancellationToken);
+            await _dbContext.SaveChangesAsync(cancellationToken);
+            
+        
+        
+        return symbolXRef.SymbolXRefId;
+    }
+
+    public Task<Guid> CreateVendorInterfaceSymbolAsync(VendorInterfaceSymbolXRef xref, CancellationToken cancellationToken = default)
+    {
+        throw new NotImplementedException();
     }
 
     public async Task<PagedResult<Instrument>> GetAsync(PagedRequest<InstrumentFilter> pagedRequest, CancellationToken cancellationToken = default)
@@ -371,7 +400,27 @@ public class InstrumentRepository : IInstrumentRepository
         throw new NotImplementedException();
     }
 
+    public Task<SymbolXRef?> GetSymbolByIdAsync(Guid symbolXRefId, CancellationToken cancellationToken = default)
+    {
+        throw new NotImplementedException();
+    }
+
     public Task<ICollection<SymbolXRef>> GetSymbolsAsync(Guid instrumentId, CancellationToken cancellationToken = default)
+    {
+
+        throw new NotImplementedException();
+    }
+
+    public async Task<SymbolXRef?> GetActiveSymbolAsync(Guid instrumentId, int symbologyId, CancellationToken cancellationToken = default)
+    {
+        return await _dbContext.SymbolXRefs
+            .FirstOrDefaultAsync(s => s.InstrumentId == instrumentId
+        && s.SymbologyId == symbologyId
+        && s.ValidTo == new DateOnly(9999, 12, 31), cancellationToken);
+
+    }
+
+    public Task<PagedResult<SymbolXRef>> GetSymbolsAsync(int symbologyId, CancellationToken cancellationToken = default)
     {
         throw new NotImplementedException();
     }
@@ -404,6 +453,29 @@ public class InstrumentRepository : IInstrumentRepository
     }
 
     public Task UpdateStatusAsync(Guid instrumentId, DateOnly effectiveDate, InstrumentStatus instrumentStatus, string? notes, CancellationToken cancellationToken = default)
+    {
+        throw new NotImplementedException();
+    }
+
+    public Task UpdateSymbolAsync(SymbolXRef symbolXRef, CancellationToken cancellationToken = default)
+    {
+        throw new NotImplementedException();
+    }
+
+    public async Task UpdateSymbolValidToAsync(Guid symbolXRefId, DateOnly validTo, CancellationToken cancellationToken = default)
+    {
+        var symbol = await _dbContext.SymbolXRefs.FindAsync(symbolXRefId, cancellationToken);
+        if (symbol is not null)
+        {
+            symbol.ValidTo = validTo;
+            symbol.LastUpdatedAtUtc = DateTime.UtcNow;
+            await _dbContext.SaveChangesAsync(cancellationToken);
+
+        }
+  
+    }
+
+    public Task UpdateVendorInterfaceSymbolAsync(Guid vendorInterfaceSymbolXRefId, bool isActive, CancellationToken cancellationToken = default)
     {
         throw new NotImplementedException();
     }

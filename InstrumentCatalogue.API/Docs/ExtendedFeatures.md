@@ -173,5 +173,10 @@ Currently targeting AWS. Azure equivalents:
 
 ---
 
+## Topics to read
+- Distributed locking
+- Json test case formatting for request/response details
+- 
+
 *Last updated: June 2026*
 *Owner: Vedita Kamat*

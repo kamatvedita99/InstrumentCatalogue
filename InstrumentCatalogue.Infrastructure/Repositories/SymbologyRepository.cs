@@ -17,27 +17,13 @@ public class SymbologyRepository : ISymbologyRepository
         _dbContext = dbContext ?? throw new ArgumentNullException(nameof(dbContext));
         _dbConnection = dbConnection ?? throw new ArgumentNullException(nameof(dbConnection));
     }
-    public Task<Guid> CreateSymbolAsync(SymbolXRef symbolXRef, CancellationToken cancellationToken = default)
-    {
-        throw new NotImplementedException();
-    }
 
     public async Task<int> CreateSymbologyAsync(Symbology symbology, CancellationToken cancellationToken = default)
     {
-       ArgumentNullException.ThrowIfNull(symbology);
-       await _dbContext.AddAsync(symbology, cancellationToken);
-       await _dbContext.SaveChangesAsync(cancellationToken);
-       return symbology.SymbologyId;
-    }
-
-    public Task<Guid> CreateVendorInterfaceSymbolAsync(VendorInterfaceSymbolXRef xref, CancellationToken cancellationToken = default)
-    {
-        throw new NotImplementedException();
-    }
-
-    public Task<SymbolXRef?> GetSymbolByIdAsync(Guid symbolXRefId, CancellationToken cancellationToken = default)
-    {
-        throw new NotImplementedException();
+        ArgumentNullException.ThrowIfNull(symbology);
+        await _dbContext.AddAsync(symbology, cancellationToken);
+        await _dbContext.SaveChangesAsync(cancellationToken);
+        return symbology.SymbologyId;
     }
 
     public async Task<ICollection<Symbology>> GetSymbologiesAsync(CancellationToken cancellationToken = default)
@@ -78,16 +64,6 @@ public class SymbologyRepository : ISymbologyRepository
         return await _dbConnection.QuerySingleOrDefaultAsync<Symbology?>(command);
     }
 
-    public Task<PagedResult<SymbolXRef>> GetSymbolsAsync(int symbologyId, CancellationToken cancellationToken = default)
-    {
-        throw new NotImplementedException();
-    }
-
-    public Task UpdateSymbolAsync(SymbolXRef symbolXRef, CancellationToken cancellationToken = default)
-    {
-        throw new NotImplementedException();
-    }
-
     public async Task UpdateSymbologyAsync(Symbology symbology, CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(symbology);
@@ -96,13 +72,4 @@ public class SymbologyRepository : ISymbologyRepository
         await _dbContext.SaveChangesAsync(cancellationToken);
     }
 
-    public Task UpdateSymbolValidToAsync(Guid symbolXRefId, DateOnly validTo, CancellationToken cancellationToken = default)
-    {
-        throw new NotImplementedException();
-    }
-
-    public Task UpdateVendorInterfaceSymbolAsync(Guid vendorInterfaceSymbolXRefId, bool isActive, CancellationToken cancellationToken = default)
-    {
-        throw new NotImplementedException();
-    }
 }

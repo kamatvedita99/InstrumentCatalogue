@@ -1,4 +1,6 @@
-﻿using InstrumentCatalogue.Application.DTOs.SymbolXRef;
+﻿using InstrumentCatalogue.Application.DTOs.Instrument;
+using InstrumentCatalogue.Application.DTOs.SymbolXRef;
+using InstrumentCatalogue.Application.Extensions;
 using InstrumentCatalogue.Core.Models;
 
 namespace InstrumentCatalogue.Application.Mappers;
@@ -26,5 +28,20 @@ public static class SymbolXRefMapper
             symbolXRefResponse.Symbology = SymbologyMapper.ToResponse(symbolXRef.Symbology);
 
         return symbolXRefResponse;
+    }
+
+    public static SymbolXRef ToDomain(Guid instrumentId, int symbologyId, CreateInstrumentSymbolRequest request)
+    {
+        ArgumentNullException.ThrowIfNull(request);
+
+        return new SymbolXRef
+        {
+            InstrumentId = instrumentId,
+            SymbologyId = symbologyId,
+            IsPrimary = request.IsPrimary,
+            Symbol = request.SymbolName,
+            ValidFrom = DateOnly.FromDateTime(DateTime.UtcNow)
+
+        }.StampCreated();
     }
 }
