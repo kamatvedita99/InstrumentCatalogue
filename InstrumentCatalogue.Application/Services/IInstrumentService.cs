@@ -16,5 +16,5 @@ public interface IInstrumentService
 
     Task<ResolvedSymbol?> ResolveSymbolAsync(string symbology, string symbol, CancellationToken cancellationToken = default);
 
-    Task<SymbolXRefResponse>CreateSymbolAsync(Guid instrumentId, CreateInstrumentSymbolRequest request, CancellationToken cancellationToken = default);
+    Task<SymbolXRefResponse?>CreateSymbolAsync(Guid instrumentId, CreateInstrumentSymbolRequest request, CancellationToken cancellationToken = default);
 }

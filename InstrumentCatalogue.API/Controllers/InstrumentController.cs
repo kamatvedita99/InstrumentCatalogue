@@ -63,11 +63,15 @@ public class InstrumentController : ControllerBase
     }
 
     [HttpPost("{id}/symbols")]
-    public async Task<ActionResult<ApiResponse<SymbolXRefResponse>>> CreateSymbolAsync(Guid id, [FromBody] CreateInstrumentSymbolRequest createSymbolRequest, IValidator<CreateInstrumentSymbolRequest> validator, CancellationToken cancellationToken = default)    
+    public async Task<ActionResult<ApiResponse<SymbolXRefResponse?>>> CreateSymbolAsync(Guid id, [FromBody] CreateInstrumentSymbolRequest createSymbolRequest, IValidator<CreateInstrumentSymbolRequest> validator, CancellationToken cancellationToken = default)    
     {
         await validator.ValidateAndThrowAsync(createSymbolRequest, cancellationToken);
 
        var createdSymbol =  await _instrumentService.CreateSymbolAsync(id, createSymbolRequest, cancellationToken);
+        
+       if(createdSymbol == null)
+            return NoContent();
+        
        return Created(string.Empty, ApiResponse<SymbolXRefResponse>.Success(createdSymbol));
     }
 }

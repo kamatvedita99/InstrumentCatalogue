@@ -41,6 +41,7 @@ public class SymbolXRefConfiguration : IEntityTypeConfiguration<SymbolXRef>
         builder.Property(sxr => sxr.ValidTo)
                                     .IsRequired()
                                     .HasDefaultValueSql("'9999-12-31'::date");
+                                    
 
         builder.Property(sxr => sxr.Symbol).IsRequired().HasMaxLength(250);
 

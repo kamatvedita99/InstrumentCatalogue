@@ -10,10 +10,7 @@ using InstrumentCatalogue.Core.Models;
 using InstrumentCatalogue.Core.ReadModels;
 using InstrumentCatalogue.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
-using System.ComponentModel.DataAnnotations;
 using System.Data;
-using System.Data.Common;
-using System.Threading;
 
 namespace InstrumentCatalogue.Infrastructure.Repositories;
 
@@ -28,7 +25,7 @@ public class InstrumentRepository : IInstrumentRepository
         _dbConnection = dbConnection;
     }
 
-    public async Task<Guid> CreateAsync(Instrument instrument, int vendorInterfaceId, CancellationToken cancellationToken = default)
+    public async Task<Guid> CreateAsync(Instrument instrument, ICollection<VendorInterfaceSymbolXRef> vendorInterfaceSymbolXRefs, CancellationToken cancellationToken = default)
     {
         await using var transaction = await _dbContext.Database.BeginTransactionAsync(cancellationToken);
         try
@@ -36,18 +33,11 @@ public class InstrumentRepository : IInstrumentRepository
            await _dbContext.AddAsync(instrument, cancellationToken);
            await _dbContext.SaveChangesAsync(cancellationToken);
 
-            var vendorInterfaceSymbolXRefs = instrument.Symbols.Select(symbol => new VendorInterfaceSymbolXRef
-            {
-                SymbolXRefId = symbol.SymbolXRefId,
-                VendorInterfaceId = vendorInterfaceId,
-                ReceivedAtUtc = DateTime.UtcNow
-            }).ToList();
+           await _dbContext.AddRangeAsync(vendorInterfaceSymbolXRefs, cancellationToken);
+           await _dbContext.SaveChangesAsync(cancellationToken);
 
-            await _dbContext.AddRangeAsync(vendorInterfaceSymbolXRefs, cancellationToken);
-            await _dbContext.SaveChangesAsync(cancellationToken);
-
-            await transaction.CommitAsync(cancellationToken);
-            return instrument.InstrumentId;
+           await transaction.CommitAsync(cancellationToken);
+           return instrument.InstrumentId;
 
         }
 
@@ -63,21 +53,12 @@ public class InstrumentRepository : IInstrumentRepository
 
     public async Task<Guid> CreateSymbolAsync(SymbolXRef symbolXRef, CancellationToken cancellationToken = default)
     {
-       var existingSymbol = await GetActiveSymbolAsync(symbolXRef.InstrumentId, symbolXRef.SymbologyId, cancellationToken);
-
-        
-            if (existingSymbol is not null)
-            {
-                existingSymbol.ValidTo = DateOnly.FromDateTime(DateTime.UtcNow).AddDays(-1);
-                existingSymbol.LastUpdatedAtUtc = DateTime.UtcNow;
-            }
-        
+       
             await _dbContext.AddAsync<SymbolXRef>(symbolXRef, cancellationToken);
             await _dbContext.SaveChangesAsync(cancellationToken);
             
         
-        
-        return symbolXRef.SymbolXRefId;
+            return symbolXRef.SymbolXRefId;
     }
 
     public Task<Guid> CreateVendorInterfaceSymbolAsync(VendorInterfaceSymbolXRef xref, CancellationToken cancellationToken = default)
@@ -416,7 +397,7 @@ public class InstrumentRepository : IInstrumentRepository
         return await _dbContext.SymbolXRefs
             .FirstOrDefaultAsync(s => s.InstrumentId == instrumentId
         && s.SymbologyId == symbologyId
-        && s.ValidTo == new DateOnly(9999, 12, 31), cancellationToken);
+        && s.ValidTo == DateOnly.Parse(TemporalDefaults.CurrentSentinelSql), cancellationToken); ;
 
     }
 

@@ -129,7 +129,15 @@ public class InstrumentService : IInstrumentService
 
             }.StampCreated()};
 
-        await _instrumentRepository.CreateAsync(instrument, vendorInterface.VendorInterfaceId, cancellationToken);
+        var vendorInterfaceSymbolXRefs = instrument.Symbols.Select(symbol => new VendorInterfaceSymbolXRef
+        {
+            SymbolXRefId = symbol.SymbolXRefId,
+            VendorInterfaceId = vendorInterface.VendorInterfaceId,
+            ReceivedAtUtc = DateTime.UtcNow
+        }.StampCreated()).ToList();
+
+
+        await _instrumentRepository.CreateAsync(instrument, vendorInterfaceSymbolXRefs, cancellationToken);
 
         foreach(var symbol in instrument.Symbols)
         {
@@ -183,13 +191,26 @@ public class InstrumentService : IInstrumentService
 
     }
 
-    public async Task<SymbolXRefResponse> CreateSymbolAsync(Guid instrumentId, CreateInstrumentSymbolRequest request, CancellationToken cancellationToken = default)
+    public async Task<SymbolXRefResponse?> CreateSymbolAsync(Guid instrumentId, CreateInstrumentSymbolRequest request, CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(request);
 
         var symbologyId = await GetSymbologyIdAsync(request.SymbologyTypeCode, cancellationToken);
 
         var symbol = SymbolXRefMapper.ToDomain(instrumentId, symbologyId, request);
+
+        var existingSymbol = await _instrumentRepository.GetActiveSymbolAsync(symbol.InstrumentId, symbol.SymbologyId, cancellationToken);
+
+        if(existingSymbol is not null)
+        {
+            if(existingSymbol.Symbol == symbol.Symbol)
+                return null;
+            
+            existingSymbol.ValidTo = DateOnly.FromDateTime(DateTime.UtcNow).AddDays(-1);
+            existingSymbol.StampUpdated();
+
+
+        }
 
         await _instrumentRepository.CreateSymbolAsync(symbol, cancellationToken);
 

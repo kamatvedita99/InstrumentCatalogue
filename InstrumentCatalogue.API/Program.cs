@@ -11,6 +11,8 @@ Log.Logger = new LoggerConfiguration()
 
 try
 {
+    AppContext.SetSwitch("Npgsql.DisableDateTimeInfinityConversions", true);
+
     var builder = WebApplication.CreateBuilder(args);
 
 
