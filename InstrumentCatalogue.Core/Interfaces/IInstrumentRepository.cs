@@ -31,7 +31,7 @@ public interface IInstrumentRepository
 
     Task UpdateStatusAsync(Guid instrumentId, DateOnly effectiveDate, InstrumentStatus instrumentStatus, string? notes, CancellationToken cancellationToken = default);
 
-    Task<Guid> CreateSymbolAsync(SymbolXRef symbolXRef, CancellationToken cancellationToken = default);
+    Task<Guid> CreateSymbolAsync(SymbolXRef symbolXRef, SymbolXRef? existingSymbol = default, CancellationToken cancellationToken = default);
 
     Task UpdateSymbolAsync(SymbolXRef symbolXRef, CancellationToken cancellationToken = default);
 

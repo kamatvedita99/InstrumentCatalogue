@@ -1,4 +1,5 @@
-﻿using InstrumentCatalogue.Core.Models;
+﻿using InstrumentCatalogue.Core.Constants;
+using InstrumentCatalogue.Core.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
@@ -18,8 +19,8 @@ public class SymbolXRefConfiguration : IEntityTypeConfiguration<SymbolXRef>
 
         builder.HasIndex(sxr => new { sxr.SymbologyId, sxr.Symbol })
             .IsUnique()
-            .HasFilter("valid_to = '9999-12-31'")
-            .HasDatabaseName("ix_symbol_x_ref_symbology_id_symbol_current"); ;
+            .HasFilter($"valid_to = '{TemporalDefaults.CurrentSentinelSql}'")
+            .HasDatabaseName("ix_symbol_x_ref_symbology_id_symbol_current");
 
         builder.Property(sxr => sxr.ValidFrom).IsRequired();
 
@@ -40,14 +41,19 @@ public class SymbolXRefConfiguration : IEntityTypeConfiguration<SymbolXRef>
 
         builder.Property(sxr => sxr.ValidTo)
                                     .IsRequired()
-                                    .HasDefaultValueSql("'9999-12-31'::date");
+                                    .HasDefaultValueSql($"'{TemporalDefaults.CurrentSentinelSql}'::date");
                                     
 
         builder.Property(sxr => sxr.Symbol).IsRequired().HasMaxLength(250);
 
         builder.HasIndex(sxr => sxr.Symbol)
-               .HasFilter("valid_to = '9999-12-31'")
+               .HasFilter($"valid_to = '{TemporalDefaults.CurrentSentinelSql}'")
                .HasDatabaseName("idx_symbol_x_ref_current");
+
+        builder.HasIndex(sxr => sxr.InstrumentId)
+            .IsUnique()
+            .HasFilter($"is_primary = true AND valid_to = '{TemporalDefaults.CurrentSentinelSql}'")
+            .HasDatabaseName("idx_symbol_x_ref_one_primary_per_instrument_symbol");
 
     }
 }

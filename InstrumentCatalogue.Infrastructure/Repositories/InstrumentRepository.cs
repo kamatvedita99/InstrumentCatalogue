@@ -51,9 +51,13 @@ public class InstrumentRepository : IInstrumentRepository
 
     }
 
-    public async Task<Guid> CreateSymbolAsync(SymbolXRef symbolXRef, CancellationToken cancellationToken = default)
+    public async Task<Guid> CreateSymbolAsync(SymbolXRef symbolXRef, SymbolXRef? existingSymbol = default, CancellationToken cancellationToken = default)
     {
-       
+            ArgumentNullException.ThrowIfNull(symbolXRef);
+
+            if(existingSymbol is not null)
+             _dbContext.Update(existingSymbol);
+
             await _dbContext.AddAsync<SymbolXRef>(symbolXRef, cancellationToken);
             await _dbContext.SaveChangesAsync(cancellationToken);
             
@@ -376,9 +380,31 @@ public class InstrumentRepository : IInstrumentRepository
         throw new NotImplementedException();
     }
 
-    public Task<ICollection<InstrumentStatusHistory>> GetStatusHistoryAsync(Guid instrumentId, CancellationToken cancellationToken = default)
+    public async Task<InstrumentStatusHistory?> GetActiveStatusHistoryAsync(Guid instrumentId, CancellationToken cancellationToken = default)
     {
-        throw new NotImplementedException();
+        return await _dbContext.InstrumentStatusHistory
+            .FirstOrDefaultAsync(s => s.InstrumentId == instrumentId
+        && s.ValidTo == DateOnly.Parse(TemporalDefaults.CurrentSentinelSql), cancellationToken);
+    }
+
+    public async Task<ICollection<InstrumentStatusHistory>> GetStatusHistoryAsync(Guid instrumentId, CancellationToken cancellationToken = default)
+    {
+        const string instrumentStatusHistorySql = @"
+            SELECT instrument_status_history_id, instrument_id, valid_from, valid_to, effective_date,
+                   notes, instrument_status, created_at_utc, last_updated_at_utc
+            FROM instrument_status_history
+            WHERE instrument_id = @id";
+
+        var commandDefinition = new CommandDefinition(
+            commandText: instrumentStatusHistorySql,
+            parameters: new { id = instrumentId },
+            cancellationToken: cancellationToken
+            );
+
+         var instrumentStatusHistory = await _dbConnection.QueryAsync<InstrumentStatusHistory>(commandDefinition);
+
+        return instrumentStatusHistory.ToList();
+    
     }
 
     public Task<SymbolXRef?> GetSymbolByIdAsync(Guid symbolXRefId, CancellationToken cancellationToken = default)
@@ -397,7 +423,7 @@ public class InstrumentRepository : IInstrumentRepository
         return await _dbContext.SymbolXRefs
             .FirstOrDefaultAsync(s => s.InstrumentId == instrumentId
         && s.SymbologyId == symbologyId
-        && s.ValidTo == DateOnly.Parse(TemporalDefaults.CurrentSentinelSql), cancellationToken); ;
+        && s.ValidTo == DateOnly.Parse(TemporalDefaults.CurrentSentinelSql), cancellationToken);
 
     }
 
@@ -433,9 +459,20 @@ public class InstrumentRepository : IInstrumentRepository
         throw new NotImplementedException();
     }
 
-    public Task UpdateStatusAsync(Guid instrumentId, DateOnly effectiveDate, InstrumentStatus instrumentStatus, string? notes, CancellationToken cancellationToken = default)
+    public async Task UpdateStatusAsync(Guid instrumentId, DateOnly effectiveDate, InstrumentStatus instrumentStatus, string? notes, CancellationToken cancellationToken = default)
     {
-        throw new NotImplementedException();
+        var instrumentStatusHistory = new InstrumentStatusHistory
+        {
+            InstrumentId = instrumentId,
+            EffectiveDate = effectiveDate,
+            InstrumentStatus = instrumentStatus,
+            Notes = notes,
+            ValidFrom = DateOnly.FromDateTime(DateTime.UtcNow),
+            ValidTo = DateOnly.Parse(TemporalDefaults.CurrentSentinelSql),
+
+        };
+        await _dbContext.AddAsync<InstrumentStatusHistory>(instrumentStatusHistory, cancellationToken);
+        await _dbContext.SaveChangesAsync(cancellationToken);
     }
 
     public Task UpdateSymbolAsync(SymbolXRef symbolXRef, CancellationToken cancellationToken = default)

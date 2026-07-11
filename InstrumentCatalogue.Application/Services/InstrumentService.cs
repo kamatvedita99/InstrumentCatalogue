@@ -1,4 +1,5 @@
 ﻿using InstrumentCatalogue.Application.DTOs.Instrument;
+using InstrumentCatalogue.Application.DTOs.InstrumentStatusHistory;
 using InstrumentCatalogue.Application.DTOs.SymbolXRef;
 using InstrumentCatalogue.Application.Exceptions;
 using InstrumentCatalogue.Application.Extensions;
@@ -212,8 +213,15 @@ public class InstrumentService : IInstrumentService
 
         }
 
-        await _instrumentRepository.CreateSymbolAsync(symbol, cancellationToken);
+        await _instrumentRepository.CreateSymbolAsync(symbol, existingSymbol, cancellationToken);
 
         return SymbolXRefMapper.ToResponse(symbol);
+    }
+
+    public async Task<ICollection<InstrumentStatusHistoryResponse>> GetInstrumentStatusHistoryAsync(Guid instrumentId, CancellationToken cancellationToken = default)
+    {
+        var instrumentStatusHistoryList = await _instrumentRepository.GetStatusHistoryAsync(instrumentId, cancellationToken);
+
+        return instrumentStatusHistoryList.Select(InstrumentStatusHistoryMapper.ToResponse).ToList();
     }
 }

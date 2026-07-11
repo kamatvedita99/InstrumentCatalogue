@@ -1,4 +1,5 @@
 ﻿using InstrumentCatalogue.Application.DTOs.Instrument;
+using InstrumentCatalogue.Application.DTOs.InstrumentStatusHistory;
 using InstrumentCatalogue.Application.DTOs.SymbolXRef;
 using InstrumentCatalogue.Core.Cache;
 using InstrumentCatalogue.Core.Common;
@@ -17,4 +18,6 @@ public interface IInstrumentService
     Task<ResolvedSymbol?> ResolveSymbolAsync(string symbology, string symbol, CancellationToken cancellationToken = default);
 
     Task<SymbolXRefResponse?>CreateSymbolAsync(Guid instrumentId, CreateInstrumentSymbolRequest request, CancellationToken cancellationToken = default);
+
+    Task<ICollection<InstrumentStatusHistoryResponse>> GetInstrumentStatusHistoryAsync(Guid instrumentId, CancellationToken cancellationToken= default);
 }

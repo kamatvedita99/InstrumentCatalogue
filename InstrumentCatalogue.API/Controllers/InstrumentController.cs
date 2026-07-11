@@ -1,6 +1,7 @@
 ﻿using FluentValidation;
 using InstrumentCatalogue.API.ReadModels;
 using InstrumentCatalogue.Application.DTOs.Instrument;
+using InstrumentCatalogue.Application.DTOs.InstrumentStatusHistory;
 using InstrumentCatalogue.Application.DTOs.SymbolXRef;
 using InstrumentCatalogue.Application.Services;
 using InstrumentCatalogue.Core.Cache;
@@ -73,5 +74,13 @@ public class InstrumentController : ControllerBase
             return NoContent();
         
        return Created(string.Empty, ApiResponse<SymbolXRefResponse>.Success(createdSymbol));
+    }
+
+    [HttpGet("{id}/status-history")]
+    public async Task<ActionResult<ApiResponse<ICollection<InstrumentStatusHistoryResponse>>>> GetInstrumentStatusHistoryAsync(Guid id, CancellationToken cancellationToken = default)
+    {
+       var instrumentStatusHistoryList = await _instrumentService.GetInstrumentStatusHistoryAsync(id, cancellationToken);
+
+        return Ok(ApiResponse<ICollection<InstrumentStatusHistoryResponse>>.Success(instrumentStatusHistoryList));
     }
 }
