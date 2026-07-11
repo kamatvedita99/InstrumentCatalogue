@@ -10,6 +10,7 @@ using InstrumentCatalogue.Core.Enums;
 using InstrumentCatalogue.Core.Filters;
 using InstrumentCatalogue.Core.Interfaces;
 using InstrumentCatalogue.Core.Models;
+using InstrumentCatalogue.Core.Rules;
 using Microsoft.Extensions.Logging;
 using System.ComponentModel.DataAnnotations;
 using System.Threading;
@@ -223,5 +224,27 @@ public class InstrumentService : IInstrumentService
         var instrumentStatusHistoryList = await _instrumentRepository.GetStatusHistoryAsync(instrumentId, cancellationToken);
 
         return instrumentStatusHistoryList.Select(InstrumentStatusHistoryMapper.ToResponse).ToList();
+    }
+
+    public async Task<InstrumentStatusHistoryResponse?> UpdateInstrumentStatusAsync(Guid instrumentId, UpdateInstrumentStatusHistoryRequest request, CancellationToken cancellationToken = default)
+    {
+        var existingInstrumentStatus = await _instrumentRepository.GetActiveStatusHistoryAsync(instrumentId, cancellationToken);
+
+        if(existingInstrumentStatus is null)
+            throw new NotFoundException<Guid>(nameof(InstrumentStatusHistory), $"Instrument {instrumentId} status details not found");
+
+        if(existingInstrumentStatus.InstrumentStatus == request.InstrumentStatus)
+            return null;
+
+        InstrumentStatusTransitionRule.ValidateTransition(existingInstrumentStatus.InstrumentStatus, request.InstrumentStatus);
+
+        existingInstrumentStatus.ValidTo = DateOnly.FromDateTime(DateTime.UtcNow);
+        existingInstrumentStatus.StampUpdated();
+
+        var instrumentStatus = InstrumentStatusHistoryMapper.ToDomain(instrumentId, request);
+
+        await _instrumentRepository.UpdateStatusAsync(instrumentStatus, existingInstrumentStatus, cancellationToken);
+        return InstrumentStatusHistoryMapper.ToResponse(instrumentStatus);
+        
     }
 }

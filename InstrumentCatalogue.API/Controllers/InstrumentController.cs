@@ -83,4 +83,17 @@ public class InstrumentController : ControllerBase
 
         return Ok(ApiResponse<ICollection<InstrumentStatusHistoryResponse>>.Success(instrumentStatusHistoryList));
     }
+
+    [HttpPost("{id}/status-history")]
+    public async Task<ActionResult<ApiResponse<InstrumentStatusHistoryResponse?>>> UpdateInstrumentStatusAsync(Guid id, [FromBody]UpdateInstrumentStatusHistoryRequest request, IValidator<UpdateInstrumentStatusHistoryRequest> validator, CancellationToken cancellationToken = default)
+    {
+        await validator.ValidateAndThrowAsync(request, cancellationToken);
+        var instrumentStatusResponse = await _instrumentService.UpdateInstrumentStatusAsync(id, request, cancellationToken);
+
+        if (instrumentStatusResponse is null)
+            return NoContent();
+
+        return Ok(ApiResponse<InstrumentStatusHistoryResponse>.Success(instrumentStatusResponse));
+    }
+
 }

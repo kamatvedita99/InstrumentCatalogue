@@ -30,7 +30,7 @@ public class InstrumentStatusHistoryConfiguration : IEntityTypeConfiguration<Ins
 
         builder.Property(ish => ish.LastUpdatedAtUtc).IsRequired();
 
-        builder.HasIndex(ish => new { ish.InstrumentId, ish.ValidFrom }).IsUnique();
+        builder.HasIndex(ish => new { ish.InstrumentId, ish.EffectiveDate, ish.InstrumentStatus }).IsUnique();
 
         builder.HasIndex(sxr => sxr.InstrumentId)
                .HasFilter("valid_to = '9999-12-31'")

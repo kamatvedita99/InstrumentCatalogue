@@ -20,4 +20,6 @@ public interface IInstrumentService
     Task<SymbolXRefResponse?>CreateSymbolAsync(Guid instrumentId, CreateInstrumentSymbolRequest request, CancellationToken cancellationToken = default);
 
     Task<ICollection<InstrumentStatusHistoryResponse>> GetInstrumentStatusHistoryAsync(Guid instrumentId, CancellationToken cancellationToken= default);
+
+    Task<InstrumentStatusHistoryResponse?> UpdateInstrumentStatusAsync(Guid instrumentId, UpdateInstrumentStatusHistoryRequest request, CancellationToken cancellationToken = default);
 }

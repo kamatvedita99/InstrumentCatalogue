@@ -68,7 +68,16 @@ public class GlobalExceptionMiddleware
 
                     await context.Response.WriteAsJsonAsync(response);
                 }
-                catch (Exception ex)
+
+                catch (InstrumentStatusTransitionException ex)
+                {
+                    _logger.LogWarning(ex, "Invalid status transition for {path}", context.Request.Path);
+                    context.Response.StatusCode = (int)HttpStatusCode.BadRequest;
+                    context.Response.ContentType = "application/json";
+                    var response = ApiResponse<object>.Fail(new ErrorDetail { Message = ex.Message, TraceId = context.TraceIdentifier });
+                    await context.Response.WriteAsJsonAsync(response);
+                }
+        catch (Exception ex)
                 {
                     _logger.LogError(ex, "Unhandled exception for {path}", context.Request.Path);
                     context.Response.StatusCode = (int)HttpStatusCode.InternalServerError;

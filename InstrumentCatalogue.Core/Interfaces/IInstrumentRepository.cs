@@ -4,7 +4,6 @@ using InstrumentCatalogue.Core.Enums;
 using InstrumentCatalogue.Core.Filters;
 using InstrumentCatalogue.Core.Models;
 using InstrumentCatalogue.Core.ReadModels;
-using System.Threading;
 
 namespace InstrumentCatalogue.Core.Interfaces;
 
@@ -29,7 +28,7 @@ public interface IInstrumentRepository
 
     Task UpdateAsync(Instrument instrument, CancellationToken cancellationToken = default);
 
-    Task UpdateStatusAsync(Guid instrumentId, DateOnly effectiveDate, InstrumentStatus instrumentStatus, string? notes, CancellationToken cancellationToken = default);
+    Task UpdateStatusAsync(InstrumentStatusHistory instrumentStatusHistory, InstrumentStatusHistory existingInstrumentStatus, CancellationToken cancellationToken = default);
 
     Task<Guid> CreateSymbolAsync(SymbolXRef symbolXRef, SymbolXRef? existingSymbol = default, CancellationToken cancellationToken = default);
 
@@ -46,5 +45,7 @@ public interface IInstrumentRepository
     Task UpdateVendorInterfaceSymbolAsync(Guid vendorInterfaceSymbolXRefId, bool isActive, CancellationToken cancellationToken = default);
 
     Task<SymbolXRef?> GetActiveSymbolAsync(Guid instrumentId, int symbologyId, CancellationToken cancellationToken = default);
+
+    Task<InstrumentStatusHistory?> GetActiveStatusHistoryAsync(Guid instrumentId, CancellationToken cancellationToken = default);
 
 }

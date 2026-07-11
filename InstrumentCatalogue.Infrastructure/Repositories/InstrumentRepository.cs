@@ -459,18 +459,9 @@ public class InstrumentRepository : IInstrumentRepository
         throw new NotImplementedException();
     }
 
-    public async Task UpdateStatusAsync(Guid instrumentId, DateOnly effectiveDate, InstrumentStatus instrumentStatus, string? notes, CancellationToken cancellationToken = default)
+    public async Task UpdateStatusAsync(InstrumentStatusHistory instrumentStatusHistory, InstrumentStatusHistory existingInstrumentHistory, CancellationToken cancellationToken = default)
     {
-        var instrumentStatusHistory = new InstrumentStatusHistory
-        {
-            InstrumentId = instrumentId,
-            EffectiveDate = effectiveDate,
-            InstrumentStatus = instrumentStatus,
-            Notes = notes,
-            ValidFrom = DateOnly.FromDateTime(DateTime.UtcNow),
-            ValidTo = DateOnly.Parse(TemporalDefaults.CurrentSentinelSql),
-
-        };
+        _dbContext.Update(existingInstrumentHistory);
         await _dbContext.AddAsync<InstrumentStatusHistory>(instrumentStatusHistory, cancellationToken);
         await _dbContext.SaveChangesAsync(cancellationToken);
     }
