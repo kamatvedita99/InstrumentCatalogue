@@ -1,6 +1,7 @@
 using InstrumentCatalogue.API.Middleware;
 using InstrumentCatalogue.Application.Extensions;
 using InstrumentCatalogue.Infrastructure.Extensions;
+using Microsoft.AspNetCore.HttpOverrides;
 using Serilog;
 using Serilog.Events;
 using Serilog.Exceptions;
@@ -61,8 +62,15 @@ try
   
     app.UseSwagger();
     app.UseSwaggerUI();
-    
 
+   
+    app.UseForwardedHeaders(new ForwardedHeadersOptions
+    {
+        ForwardedHeaders = ForwardedHeaders.XForwardedFor |
+                           ForwardedHeaders.XForwardedProto
+    });
+
+    app.UseHttpsRedirection();
     app.UseHttpsRedirection();
 
     app.UseAuthorization();
