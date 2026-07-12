@@ -858,5 +858,5 @@ Explicitly reasoned through and confirmed as the *correct* shape, not a fallback
 
 *Owner: Vedita Kamat*
 *Started: June 2026*
-*Repo: https://github.com/kamatvedita99/InstrumentCatalogue*
+*Repo: https://github.com/kamatvedita99/InstrumentCatalogue
 

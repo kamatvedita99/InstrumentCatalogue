@@ -17,6 +17,7 @@ COPY . .
 
 RUN dotnet publish InstrumentCatalogue.API/InstrumentCatalogue.API.csproj \
     -c Release \
+    --no-restore \
     -o /app/publish
 
 # ==========================
@@ -30,4 +31,5 @@ COPY --from=build /app/publish .
 
 EXPOSE 8080
 
+USER app
 ENTRYPOINT ["dotnet", "InstrumentCatalogue.API.dll"]
