@@ -1,3 +1,4 @@
+using HealthChecks.UI.Client;
 using InstrumentCatalogue.API.Middleware;
 using InstrumentCatalogue.Application.Extensions;
 using InstrumentCatalogue.Infrastructure.Extensions;
@@ -86,7 +87,8 @@ try
 
     app.MapHealthChecks("/health/ready", new HealthCheckOptions
     {
-        Predicate = check => check.Tags.Contains("ready")
+        Predicate = check => check.Tags.Contains("ready"),
+        ResponseWriter = UIResponseWriter.WriteHealthCheckUIResponse
     });
 
     app.MapControllers();
