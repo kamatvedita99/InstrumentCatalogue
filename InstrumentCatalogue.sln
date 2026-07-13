@@ -11,11 +11,13 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "InstrumentCatalogue.Applica
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "InstrumentCatalogue.Infrastructure", "InstrumentCatalogue.Infrastructure\InstrumentCatalogue.Infrastructure.csproj", "{FF49C84A-0E07-46A3-A89B-1E7CC649EA6D}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "InstrumentCatalogue.Tests", "InstrumentCatalogue.Tests\InstrumentCatalogue.Tests.csproj", "{28150DB8-6F9B-4E74-8FDC-810A8ABB80ED}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "InstrumentCatalogue.Tests", "InstrumentCatalogue.Tests\InstrumentCatalogue.Tests.csproj", "{28150DB8-6F9B-4E74-8FDC-810A8ABB80ED}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{8A3D1A5E-123E-4E90-A8F3-BC15C7658398}"
 	ProjectSection(SolutionItems) = preProject
 		.dockerignore = .dockerignore
+		credentials.txt = credentials.txt
+		docker-compose.yml = docker-compose.yml
 		DockerFile = DockerFile
 	EndProjectSection
 EndProject

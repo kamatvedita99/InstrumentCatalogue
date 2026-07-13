@@ -2,6 +2,7 @@ using InstrumentCatalogue.API.Middleware;
 using InstrumentCatalogue.Application.Extensions;
 using InstrumentCatalogue.Infrastructure.Extensions;
 using InstrumentCatalogue.Infrastructure.Persistence;
+using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.EntityFrameworkCore;
 using Serilog;
@@ -65,10 +66,8 @@ try
                     : LogEventLevel.Information;
     });
 
-
     app.UseMiddleware<GlobalExceptionMiddleware>();
 
-    
     // Configure the HTTP request pipeline.
   
     app.UseSwagger();
@@ -79,6 +78,16 @@ try
   
 
     app.UseAuthorization();
+
+    app.MapHealthChecks("/health", new HealthCheckOptions
+    {
+        Predicate = _ => false
+    });
+
+    app.MapHealthChecks("/health/ready", new HealthCheckOptions
+    {
+        Predicate = check => check.Tags.Contains("ready")
+    });
 
     app.MapControllers();
 
