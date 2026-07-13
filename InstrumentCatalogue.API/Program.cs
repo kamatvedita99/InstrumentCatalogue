@@ -1,7 +1,9 @@
 using InstrumentCatalogue.API.Middleware;
 using InstrumentCatalogue.Application.Extensions;
 using InstrumentCatalogue.Infrastructure.Extensions;
+using InstrumentCatalogue.Infrastructure.Persistence;
 using Microsoft.AspNetCore.HttpOverrides;
+using Microsoft.EntityFrameworkCore;
 using Serilog;
 using Serilog.Events;
 using Serilog.Exceptions;
@@ -44,6 +46,15 @@ try
 
 
     var app = builder.Build();
+
+    app.UseForwardedHeaders(new ForwardedHeadersOptions
+    {
+        ForwardedHeaders = ForwardedHeaders.XForwardedFor |
+                          ForwardedHeaders.XForwardedProto
+    });
+
+    app.UseHttpsRedirection();
+
     app.UseSerilogRequestLogging(options =>
     {
         options.GetLevel = (httpContext, elapsed, ex) =>
@@ -64,24 +75,37 @@ try
     app.UseSwaggerUI();
 
    
-    app.UseForwardedHeaders(new ForwardedHeadersOptions
-    {
-        ForwardedHeaders = ForwardedHeaders.XForwardedFor |
-                           ForwardedHeaders.XForwardedProto
-    });
-
-    app.UseHttpsRedirection();
-    app.UseHttpsRedirection();
+   
+  
 
     app.UseAuthorization();
 
     app.MapControllers();
+
+    //Run migrations
+    try
+    {
+        using (var scope = app.Services.CreateScope())
+        {
+            var db = scope.ServiceProvider.GetRequiredService<CatalogueDbContext>();
+            await db.Database.MigrateAsync();
+            Log.Information("Migration applied successfully");
+        }
+    }
+
+    catch(Exception ex)
+    {
+        Log.Fatal(ex, "Database migration failed. Application cannot start.");
+        throw;
+    }
+    
 
     app.Run();
 }
 catch(Exception e)
 {
     Log.Fatal(e, "Application failed to start");
+    throw;
 }
 
 finally
