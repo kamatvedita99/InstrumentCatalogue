@@ -80,6 +80,11 @@ public static class ServiceCollectionExtensions
         var resiliencePipeline = new ResiliencePipelineBuilder().AddRetry(retryOptions).AddCircuitBreaker(circuitBreakerOptions).Build();
         services.AddSingleton(resiliencePipeline);
 
+        //health checks
+        services.AddHealthChecks()
+            .AddNpgSql(configuration.GetConnectionString("DefaultConnection")!, tags: new[] { "ready" })
+            .AddRedis(configuration.GetConnectionString("Redis")!, tags: new[] {"ready"});
+
 
     }
 }
