@@ -44,6 +44,16 @@ public class InstrumentController : ControllerBase
         return Ok(ApiResponse<InstrumentResponse?>.Success(instrumentResponse));
     }
 
+    [HttpPatch("{id}")]
+    public async Task<ActionResult<ApiResponse<InstrumentResponse?>>> UpdateAsync(Guid id, [FromBody] UpdateInstrumentRequest request, IValidator<UpdateInstrumentRequest> validator, CancellationToken cancellationToken = default)
+    {
+        await validator.ValidateAndThrowAsync(request, cancellationToken);
+
+        var instrumentResponse = await _instrumentService.UpdateAsync(id, request, cancellationToken);
+
+        return Ok(ApiResponse<InstrumentResponse?>.Success(instrumentResponse));
+    }
+
     [HttpGet]
     public async Task<ActionResult<PagedResult<InstrumentResponse>>> GetAsync([FromQuery] PagedRequest<InstrumentFilter> pagedRequest, IValidator<InstrumentFilter> validator, CancellationToken cancellationToken = default)
     {

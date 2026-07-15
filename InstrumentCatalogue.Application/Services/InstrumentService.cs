@@ -247,4 +247,99 @@ public class InstrumentService : IInstrumentService
         return InstrumentStatusHistoryMapper.ToResponse(instrumentStatus);
         
     }
+
+    public async Task<InstrumentResponse?> UpdateAsync(Guid instrumentId, UpdateInstrumentRequest updateInstrumentRequest, CancellationToken cancellationToken = default)
+    {
+        ArgumentNullException.ThrowIfNull(updateInstrumentRequest);
+
+        var instrument = await _instrumentRepository.GetByIdAsync(instrumentId, cancellationToken);
+
+        if(instrument is null)
+            throw new NotFoundException<Guid>(nameof(Instrument), instrumentId);
+
+        if(!string.IsNullOrWhiteSpace(updateInstrumentRequest.Name))
+            instrument.Name = updateInstrumentRequest.Name;
+
+        if(!string.IsNullOrWhiteSpace(updateInstrumentRequest.Currency))
+            instrument.Currency = updateInstrumentRequest.Currency;
+
+        if(!string.IsNullOrWhiteSpace(updateInstrumentRequest.Country))
+            instrument.Country = updateInstrumentRequest.Country;
+
+        if(!string.IsNullOrWhiteSpace(updateInstrumentRequest.Exchange))
+            instrument.Exchange = updateInstrumentRequest.Exchange;
+
+        if(updateInstrumentRequest.ListedDate.HasValue)
+            instrument.ListedDate = updateInstrumentRequest.ListedDate.Value;
+
+        switch(instrument.Type)
+        {
+            case InstrumentType.Bond:
+                UpdateBondRefData(instrument, updateInstrumentRequest.BondRef);
+                break;
+
+            case InstrumentType.Equity:
+                UpdateEquityRefData(instrument, updateInstrumentRequest.EquityRef);
+                break;
+
+            case InstrumentType.ETF:
+                UpdateEtfRefData(instrument, updateInstrumentRequest.EtfRef);
+                break;
+        }
+
+        instrument.StampUpdated();
+        await _instrumentRepository.UpdateAsync(instrument, cancellationToken);
+
+        if (!string.IsNullOrWhiteSpace(updateInstrumentRequest.Name))
+        {
+            foreach (var symbol in instrument.Symbols)
+            {
+                await _symbolResolutionCache.SetAsync(symbol.SymbologyId, symbol.Symbol, new ResolvedSymbol { InstrumentId = instrument.InstrumentId, Name = instrument.Name, Type = instrument.Type }, cancellationToken);
+            }
+        }
+        return InstrumentMapper.ToResponse(instrument);
+
+
+
+
+    }
+    private void UpdateBondRefData(Instrument instrument, UpdateBondRefRequest? request)
+    {
+        if (request is null || instrument.BondRefData is null) return;
+        if (request.FaceValue.HasValue) instrument.BondRefData.FaceValue = request.FaceValue.Value;
+        if (request.CouponRate.HasValue) instrument.BondRefData.CouponRate = request.CouponRate.Value;
+        if (request.CouponFrequency.HasValue) instrument.BondRefData.CouponFrequency = request.CouponFrequency.Value;
+        if (!string.IsNullOrWhiteSpace(request.Issuer)) instrument.BondRefData.Issuer = request.Issuer;
+        if (request.IssueDate.HasValue) instrument.BondRefData.IssueDate = request.IssueDate;
+        if (request.MaturityDate.HasValue) instrument.BondRefData.MaturityDate = request.MaturityDate;
+        if (!string.IsNullOrWhiteSpace(request.CreditRating)) instrument.BondRefData.CreditRating = request.CreditRating;
+        if (request.BondType.HasValue) instrument.BondRefData.BondType = request.BondType.Value;
+        if (request.BondStructure.HasValue) instrument.BondRefData.BondStructure = request.BondStructure.Value;
+        if (request.Duration.HasValue) instrument.BondRefData.Duration = request.Duration.Value;
+        instrument.BondRefData.StampUpdated();
+    }
+
+    private void UpdateEquityRefData(Instrument instrument, UpdateEquityRefRequest? request)
+    {
+        if (request is null || instrument.EquityRefData is null) return;
+        if (!string.IsNullOrWhiteSpace(request.Sector)) instrument.EquityRefData.Sector = request.Sector;
+        if (!string.IsNullOrWhiteSpace(request.Industry)) instrument.EquityRefData.Industry = request.Industry;
+        if (request.SharesOutstanding.HasValue) instrument.EquityRefData.SharesOutstanding = request.SharesOutstanding.Value;
+        if (request.LotSize.HasValue) instrument.EquityRefData.LotSize = request.LotSize.Value;
+        if (request.ParValue.HasValue) instrument.EquityRefData.ParValue = request.ParValue.Value;
+        instrument.EquityRefData.StampUpdated();
+    }
+
+    private void UpdateEtfRefData(Instrument instrument, UpdateEtfRefRequest? request)
+    {
+        if (request is null || instrument.EtfRefData is null) return;
+        if (!string.IsNullOrWhiteSpace(request.FundManager)) instrument.EtfRefData.FundManager = request.FundManager;
+        if (!string.IsNullOrWhiteSpace(request.UnderlyingIndex)) instrument.EtfRefData.UnderlyingIndex = request.UnderlyingIndex;
+        if (request.ReplicationType.HasValue) instrument.EtfRefData.ReplicationType = request.ReplicationType.Value;
+        if (request.DistributionFrequency.HasValue) instrument.EtfRefData.DistributionFrequency = request.DistributionFrequency.Value;
+        if (request.InceptionDate.HasValue) instrument.EtfRefData.InceptionDate = request.InceptionDate;
+        if (request.ExpenseRatio.HasValue) instrument.EtfRefData.ExpenseRatio = request.ExpenseRatio.Value;
+        instrument.EtfRefData.StampUpdated();
+    }
+
 }

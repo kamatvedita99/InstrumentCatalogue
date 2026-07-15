@@ -454,9 +454,10 @@ public class InstrumentRepository : IInstrumentRepository
         throw new NotImplementedException();
     }
 
-    public Task UpdateAsync(Instrument instrument, CancellationToken cancellationToken = default)
+    public async Task UpdateAsync(Instrument instrument, CancellationToken cancellationToken = default)
     {
-        throw new NotImplementedException();
+        _dbContext.Update(instrument);
+       await  _dbContext.SaveChangesAsync(cancellationToken);
     }
 
     public async Task UpdateStatusAsync(InstrumentStatusHistory instrumentStatusHistory, InstrumentStatusHistory existingInstrumentHistory, CancellationToken cancellationToken = default)
