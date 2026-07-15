@@ -342,10 +342,9 @@ public class InstrumentService : IInstrumentService
         instrument.EtfRefData.StampUpdated();
     }
 
-    public async Task<SymbolXRefResponse?> UpdateSymbolAsync(Guid symbolXRefId, Guid instrumentId, UpdateSymbolXRefRequest? request, CancellationToken cancellationToken = default)
+    public async Task<SymbolXRefResponse?> UpdateSymbolAsync(Guid symbolXRefId, Guid instrumentId, UpdateSymbolXRefRequest request, CancellationToken cancellationToken = default)
     {
-        if (request == null)
-            return null;
+        ArgumentNullException.ThrowIfNull(request);
 
         var symbolXRef = await _instrumentRepository.GetSymbolByIdAsync(symbolXRefId, instrumentId, cancellationToken);
 
