@@ -2,7 +2,6 @@
 using InstrumentCatalogue.Core.Cache;
 using InstrumentCatalogue.Core.Common;
 using InstrumentCatalogue.Core.Constants;
-using InstrumentCatalogue.Core.Enums;
 using InstrumentCatalogue.Core.Filters;
 using InstrumentCatalogue.Core.Helpers;
 using InstrumentCatalogue.Core.Interfaces;
@@ -407,15 +406,11 @@ public class InstrumentRepository : IInstrumentRepository
     
     }
 
-    public Task<SymbolXRef?> GetSymbolByIdAsync(Guid symbolXRefId, CancellationToken cancellationToken = default)
+    public async Task<SymbolXRef?> GetSymbolByIdAsync(Guid symbolXRefId, Guid instrumentId, CancellationToken cancellationToken = default)
     {
-        throw new NotImplementedException();
-    }
-
-    public Task<ICollection<SymbolXRef>> GetSymbolsAsync(Guid instrumentId, CancellationToken cancellationToken = default)
-    {
-
-        throw new NotImplementedException();
+        //The call does not user dapper because this is only called internally for updating the symbol
+        //No read latency for public facing APIs.
+        return await _dbContext.SymbolXRefs.SingleOrDefaultAsync(sxr => sxr.InstrumentId == instrumentId && sxr.SymbolXRefId == symbolXRefId, cancellationToken);
     }
 
     public async Task<SymbolXRef?> GetActiveSymbolAsync(Guid instrumentId, int symbologyId, CancellationToken cancellationToken = default)
@@ -427,7 +422,7 @@ public class InstrumentRepository : IInstrumentRepository
 
     }
 
-    public Task<PagedResult<SymbolXRef>> GetSymbolsAsync(int symbologyId, CancellationToken cancellationToken = default)
+    public Task<ICollection<SymbolXRef>> GetSymbolsAsync(Guid instrumentId, CancellationToken cancellationToken = default)
     {
         throw new NotImplementedException();
     }
@@ -467,9 +462,9 @@ public class InstrumentRepository : IInstrumentRepository
         await _dbContext.SaveChangesAsync(cancellationToken);
     }
 
-    public Task UpdateSymbolAsync(SymbolXRef symbolXRef, CancellationToken cancellationToken = default)
+    public async Task UpdateSymbolAsync(SymbolXRef symbolXRef, CancellationToken cancellationToken = default)
     {
-        throw new NotImplementedException();
+        await _dbContext.SaveChangesAsync(cancellationToken);
     }
 
     public async Task UpdateSymbolValidToAsync(Guid symbolXRefId, DateOnly validTo, CancellationToken cancellationToken = default)
@@ -485,8 +480,4 @@ public class InstrumentRepository : IInstrumentRepository
   
     }
 
-    public Task UpdateVendorInterfaceSymbolAsync(Guid vendorInterfaceSymbolXRefId, bool isActive, CancellationToken cancellationToken = default)
-    {
-        throw new NotImplementedException();
-    }
 }

@@ -86,6 +86,17 @@ public class InstrumentController : ControllerBase
        return Created(string.Empty, ApiResponse<SymbolXRefResponse>.Success(createdSymbol));
     }
 
+    [HttpPatch("{id}/symbols/{symbolId}")]
+    public async Task<ActionResult<ApiResponse<SymbolXRefResponse?>>> UpdateSymbolAsync(Guid id, Guid symbolId, [FromBody] UpdateSymbolXRefRequest? updateSymbolRequest, CancellationToken cancellationToken = default)
+    {
+        var updatedSymbol = await _instrumentService.UpdateSymbolAsync(symbolId, id, updateSymbolRequest, cancellationToken);
+
+        if(updatedSymbol == null)
+            return NoContent();
+
+        return Ok(ApiResponse<SymbolXRefResponse>.Success(updatedSymbol));
+    }
+
     [HttpGet("{id}/status-history")]
     public async Task<ActionResult<ApiResponse<ICollection<InstrumentStatusHistoryResponse>>>> GetInstrumentStatusHistoryAsync(Guid id, CancellationToken cancellationToken = default)
     {

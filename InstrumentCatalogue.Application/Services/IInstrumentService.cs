@@ -24,4 +24,6 @@ public interface IInstrumentService
     Task<InstrumentStatusHistoryResponse?> UpdateInstrumentStatusAsync(Guid instrumentId, UpdateInstrumentStatusHistoryRequest request, CancellationToken cancellationToken = default);
 
     Task<InstrumentResponse?> UpdateAsync(Guid instrumentId, UpdateInstrumentRequest request, CancellationToken cancellationToken = default);
+
+    Task<SymbolXRefResponse?> UpdateSymbolAsync(Guid symbolXRefId, Guid instrumentId, UpdateSymbolXRefRequest? request, CancellationToken cancellationToken = default);
 }

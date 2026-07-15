@@ -342,4 +342,28 @@ public class InstrumentService : IInstrumentService
         instrument.EtfRefData.StampUpdated();
     }
 
+    public async Task<SymbolXRefResponse?> UpdateSymbolAsync(Guid symbolXRefId, Guid instrumentId, UpdateSymbolXRefRequest? request, CancellationToken cancellationToken = default)
+    {
+        if (request == null)
+            return null;
+
+        var symbolXRef = await _instrumentRepository.GetSymbolByIdAsync(symbolXRefId, instrumentId, cancellationToken);
+
+        if (symbolXRef is null)
+            throw new NotFoundException<Guid>(nameof(SymbolXRef), symbolXRefId);
+
+        if (request.IsPrimary.HasValue)
+        {
+            symbolXRef.IsPrimary = request.IsPrimary.Value;
+
+            symbolXRef.StampUpdated();
+
+           await _instrumentRepository.UpdateSymbolAsync(symbolXRef, cancellationToken);
+        }
+
+        return SymbolXRefMapper.ToResponse(symbolXRef);
+        
+    }
+
+   
 }
