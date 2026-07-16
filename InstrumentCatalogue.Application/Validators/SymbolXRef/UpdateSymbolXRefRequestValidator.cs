@@ -7,6 +7,6 @@ public class UpdateSymbolXRefRequestValidator : AbstractValidator<UpdateSymbolXR
 {
     public UpdateSymbolXRefRequestValidator()
     {
-        RuleFor(usxr => usxr.IsPrimary).NotEmpty().WithMessage("IsPrimary is required field for updation");
+        RuleFor(usxr => usxr.IsPrimary).NotNull().WithMessage("IsPrimary is required field for updation");
     }
 }

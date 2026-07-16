@@ -10,6 +10,7 @@ using Serilog;
 using Serilog.Events;
 using Serilog.Exceptions;
 
+Serilog.Debugging.SelfLog.Enable(msg => Console.WriteLine($"SERILOG: {msg}"));
 Log.Logger = new LoggerConfiguration()
             .WriteTo.Console()
             .CreateBootstrapLogger();
@@ -31,6 +32,7 @@ try
         .Enrich.WithCorrelationId()
         .Enrich.WithClientIp()
         .Enrich.WithExceptionDetails());
+        
         
 
     // Add services to the container.
