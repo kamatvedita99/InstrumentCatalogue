@@ -374,14 +374,12 @@ public class InstrumentService : IInstrumentService
         if(symbolXRef is null)
             throw new NotFoundException<Guid>(nameof(SymbolXRef), symbolXRefId);
 
-        var vendorInterface = _vendorRepository.GetVendorInterfaceByIdAsync(request.VendorInterfaceId);
+        var vendorInterface = await _vendorRepository.GetVendorInterfaceByIdAsync(request.VendorInterfaceId);
 
         if(vendorInterface is null)
             throw new NotFoundException<int>(nameof(VendorInterface), request.VendorInterfaceId);
 
-        var vendorInterfaceSymbolMapping = symbolXRef.VendorInterfaceSymbols.FirstOrDefault(vis => vis.VendorInterfaceId == request.VendorInterfaceId);
-
-        if (vendorInterfaceSymbolMapping is null)
+        if (await _instrumentRepository.VendorInterfaceSymbolExistsAsync(symbolXRefId, request.VendorInterfaceId))
             return null;
 
         var vendorInterfaceSymbolXRef = VendorInterfaceSymbolMapper.ToDomain(symbolXRefId, request);

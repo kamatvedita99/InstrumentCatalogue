@@ -44,4 +44,6 @@ public interface IInstrumentRepository
 
     Task<InstrumentStatusHistory?> GetActiveStatusHistoryAsync(Guid instrumentId, CancellationToken cancellationToken = default);
 
+    Task<bool> VendorInterfaceSymbolExistsAsync(Guid symbolXRefId, int vendorInterfaceId, CancellationToken cancellationToken = default);
+
 }

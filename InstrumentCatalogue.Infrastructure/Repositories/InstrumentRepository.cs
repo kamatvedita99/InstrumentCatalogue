@@ -489,4 +489,14 @@ public class InstrumentRepository : IInstrumentRepository
   
     }
 
+    public async Task<bool> VendorInterfaceSymbolExistsAsync(Guid symbolXRefId, int vendorInterfaceId, CancellationToken cancellationToken = default)
+    {
+            var command = new CommandDefinition(
+                commandText: "SELECT EXISTS(SELECT 1 FROM vendor_interface_symbol_x_ref WHERE symbol_x_ref_id = @symbol_x_ref_id AND vendor_interface_id = @vendor_interface_id)",
+                parameters: new { symbol_x_ref_id = symbolXRefId, vendor_interface_id = vendorInterfaceId },
+                cancellationToken: cancellationToken
+            );
+            return await _dbConnection.ExecuteScalarAsync<bool>(command);
+        
+    }
 }
