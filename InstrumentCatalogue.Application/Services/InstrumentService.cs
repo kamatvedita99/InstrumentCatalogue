@@ -1,6 +1,7 @@
 ﻿using InstrumentCatalogue.Application.DTOs.Instrument;
 using InstrumentCatalogue.Application.DTOs.InstrumentStatusHistory;
 using InstrumentCatalogue.Application.DTOs.SymbolXRef;
+using InstrumentCatalogue.Application.DTOs.VendorInterfaceSymbol;
 using InstrumentCatalogue.Application.Exceptions;
 using InstrumentCatalogue.Application.Extensions;
 using InstrumentCatalogue.Application.Mappers;
@@ -364,5 +365,30 @@ public class InstrumentService : IInstrumentService
         
     }
 
-   
+    public async Task<VendorInterfaceSymbolResponse?> CreateVendorInterfaceSymbolAsync(Guid symbolXRefId, Guid instrumentId, CreateVendorInterfaceSymbolRequest request, CancellationToken cancellationToken = default)
+    {
+        ArgumentNullException.ThrowIfNull(request);
+
+        var symbolXRef = await _instrumentRepository.GetSymbolByIdAsync(symbolXRefId, instrumentId, cancellationToken);
+
+        if(symbolXRef is null)
+            throw new NotFoundException<Guid>(nameof(SymbolXRef), symbolXRefId);
+
+        var vendorInterface = _vendorRepository.GetVendorInterfaceByIdAsync(request.VendorInterfaceId);
+
+        if(vendorInterface is null)
+            throw new NotFoundException<int>(nameof(VendorInterface), request.VendorInterfaceId);
+
+        var vendorInterfaceSymbolMapping = symbolXRef.VendorInterfaceSymbols.FirstOrDefault(vis => vis.VendorInterfaceId == request.VendorInterfaceId);
+
+        if (vendorInterfaceSymbolMapping is null)
+            return null;
+
+        var vendorInterfaceSymbolXRef = VendorInterfaceSymbolMapper.ToDomain(symbolXRefId, request);
+        await _instrumentRepository.CreateVendorInterfaceSymbolAsync(vendorInterfaceSymbolXRef, cancellationToken);
+
+        return VendorInterfaceSymbolMapper.ToResponse(vendorInterfaceSymbolXRef);
+
+
+    }
 }

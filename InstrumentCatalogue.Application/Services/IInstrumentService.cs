@@ -1,6 +1,7 @@
 ﻿using InstrumentCatalogue.Application.DTOs.Instrument;
 using InstrumentCatalogue.Application.DTOs.InstrumentStatusHistory;
 using InstrumentCatalogue.Application.DTOs.SymbolXRef;
+using InstrumentCatalogue.Application.DTOs.VendorInterfaceSymbol;
 using InstrumentCatalogue.Core.Cache;
 using InstrumentCatalogue.Core.Common;
 using InstrumentCatalogue.Core.Filters;
@@ -26,4 +27,6 @@ public interface IInstrumentService
     Task<InstrumentResponse?> UpdateAsync(Guid instrumentId, UpdateInstrumentRequest request, CancellationToken cancellationToken = default);
 
     Task<SymbolXRefResponse?> UpdateSymbolAsync(Guid symbolXRefId, Guid instrumentId, UpdateSymbolXRefRequest request, CancellationToken cancellationToken = default);
+
+    Task<VendorInterfaceSymbolResponse?> CreateVendorInterfaceSymbolAsync(Guid symbolXRefId, Guid instrumentId, CreateVendorInterfaceSymbolRequest request, CancellationToken cancellationToken = default);
 }
