@@ -1,4 +1,5 @@
 ﻿using InstrumentCatalogue.Application.DTOs.VendorInterfaceSymbol;
+using InstrumentCatalogue.Application.Extensions;
 using InstrumentCatalogue.Core.Models;
 
 namespace InstrumentCatalogue.Application.Mappers;
@@ -17,5 +18,18 @@ public static class VendorInterfaceSymbolMapper
             IsActive = vendorInterfaceSymbolXRef.IsActive,
             ReceivedAtUtc = vendorInterfaceSymbolXRef.ReceivedAtUtc,
         };
+    }
+
+    public static VendorInterfaceSymbolXRef ToDomain(Guid symbolXRefId, CreateVendorInterfaceSymbolRequest request)
+    {
+        ArgumentNullException.ThrowIfNull(request);
+
+        return new VendorInterfaceSymbolXRef
+        {
+            VendorInterfaceId = request.VendorInterfaceId,
+            SymbolXRefId = symbolXRefId,
+            IsActive = true,
+            ReceivedAtUtc = request.ReceivedAtUtc,
+        }.StampCreated();
     }
 }

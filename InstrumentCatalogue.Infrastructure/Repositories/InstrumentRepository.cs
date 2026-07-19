@@ -64,9 +64,11 @@ public class InstrumentRepository : IInstrumentRepository
             return symbolXRef.SymbolXRefId;
     }
 
-    public Task<Guid> CreateVendorInterfaceSymbolAsync(VendorInterfaceSymbolXRef xref, CancellationToken cancellationToken = default)
+    public async Task<Guid> CreateVendorInterfaceSymbolAsync(VendorInterfaceSymbolXRef xref, CancellationToken cancellationToken = default)
     {
-        throw new NotImplementedException();
+       await _dbContext.AddAsync(xref, cancellationToken);
+       await  _dbContext.SaveChangesAsync(cancellationToken);
+       return xref.VendorInterfaceSymbolXRefId;
     }
 
     public async Task<PagedResult<Instrument>> GetAsync(PagedRequest<InstrumentFilter> pagedRequest, CancellationToken cancellationToken = default)
@@ -422,9 +424,16 @@ public class InstrumentRepository : IInstrumentRepository
 
     }
 
-    public Task<ICollection<SymbolXRef>> GetSymbolsAsync(Guid instrumentId, CancellationToken cancellationToken = default)
+    public async Task<ICollection<SymbolXRef>> GetSymbolsAsync(Guid instrumentId, CancellationToken cancellationToken = default)
     {
-        throw new NotImplementedException();
+        var sql = "SELECT sxr.symbol_x_ref_id, sxr.symbol, sxr.instrument_id, sxr.symbology_id, sxr.is_primary, sxr.valid_from, sxr.valid_to, " +
+            "sxr.created_at_utc, sxr.last_updated_at_utc" +
+                "FROM symbol_x_ref sxr" +
+                "WHERE sxr.instrument_id = @instrument_id " +
+                    $"AND sxr.valid_to = '{TemporalDefaults.CurrentSentinelSql}'";
+        var command = new CommandDefinition(sql, parameters: new { instrument_id = instrumentId }, cancellationToken: cancellationToken);
+
+        return  (await _dbConnection.QueryAsync<SymbolXRef>(command)).ToList();
     }
 
     public async Task<ResolvedSymbol?> ResolveSymbolAsync(string symbology, string symbol, CancellationToken cancellationToken = default)
@@ -480,4 +489,14 @@ public class InstrumentRepository : IInstrumentRepository
   
     }
 
+    public async Task<bool> VendorInterfaceSymbolExistsAsync(Guid symbolXRefId, int vendorInterfaceId, CancellationToken cancellationToken = default)
+    {
+            var command = new CommandDefinition(
+                commandText: "SELECT EXISTS(SELECT 1 FROM vendor_interface_symbol_x_ref WHERE symbol_x_ref_id = @symbol_x_ref_id AND vendor_interface_id = @vendor_interface_id)",
+                parameters: new { symbol_x_ref_id = symbolXRefId, vendor_interface_id = vendorInterfaceId },
+                cancellationToken: cancellationToken
+            );
+            return await _dbConnection.ExecuteScalarAsync<bool>(command);
+        
+    }
 }

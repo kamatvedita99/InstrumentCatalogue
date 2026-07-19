@@ -6,9 +6,12 @@ using InstrumentCatalogue.Infrastructure.Persistence;
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
+using Polly;
 using Serilog;
 using Serilog.Events;
 using Serilog.Exceptions;
+using Serilog.Sinks.Grafana.Loki;
 
 Serilog.Debugging.SelfLog.Enable(msg => Console.WriteLine($"SERILOG: {msg}"));
 Log.Logger = new LoggerConfiguration()
@@ -21,17 +24,44 @@ try
 
     var builder = WebApplication.CreateBuilder(args);
 
+    
+    
 
-    builder.Host.UseSerilog((context, services, configuration) => configuration
-        .ReadFrom.Configuration(context.Configuration)
-        .ReadFrom.Services(services)
-        .Enrich.FromLogContext()
-        .Enrich.WithMachineName()
-        .Enrich.WithProcessId()
-        .Enrich.WithThreadId()
-        .Enrich.WithCorrelationId()
-        .Enrich.WithClientIp()
-        .Enrich.WithExceptionDetails());
+    builder.Host.UseSerilog((context, services, configuration) => {
+        configuration
+            .ReadFrom.Configuration(context.Configuration)
+            .ReadFrom.Services(services)
+            .Enrich.FromLogContext()
+            .Enrich.WithMachineName()
+            .Enrich.WithProcessId()
+            .Enrich.WithThreadId()
+            .Enrich.WithCorrelationId()
+            .Enrich.WithClientIp()
+            .Enrich.WithExceptionDetails();
+            
+            if(context.HostingEnvironment.IsProduction())
+            {
+                var lokiLogin = Environment.GetEnvironmentVariable("LOKI_LOGIN");
+                var lokiPassword = Environment.GetEnvironmentVariable("LOKI_PASSWORD");
+
+                if (!string.IsNullOrEmpty(lokiLogin) && !string.IsNullOrEmpty(lokiPassword))
+                {
+                    configuration.WriteTo.GrafanaLoki(
+                        "https://logs-prod-028.grafana.net",
+                        credentials: new LokiCredentials
+                        {
+                            Login = lokiLogin,
+                            Password = lokiPassword
+                        },
+                        labels: new[]
+                        {
+                    new LokiLabel { Key = "app", Value = "instrument-catalogue" },
+                    new LokiLabel { Key = "env", Value = "production" }
+                        }
+                    );
+                }
+            }
+    });
         
         
 

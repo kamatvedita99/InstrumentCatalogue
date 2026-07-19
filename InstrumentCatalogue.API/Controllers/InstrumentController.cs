@@ -3,6 +3,7 @@ using InstrumentCatalogue.API.ReadModels;
 using InstrumentCatalogue.Application.DTOs.Instrument;
 using InstrumentCatalogue.Application.DTOs.InstrumentStatusHistory;
 using InstrumentCatalogue.Application.DTOs.SymbolXRef;
+using InstrumentCatalogue.Application.DTOs.VendorInterfaceSymbol;
 using InstrumentCatalogue.Application.Services;
 using InstrumentCatalogue.Core.Cache;
 using InstrumentCatalogue.Core.Common;
@@ -114,6 +115,17 @@ public class InstrumentController : ControllerBase
             return NoContent();
 
         return Ok(ApiResponse<InstrumentStatusHistoryResponse>.Success(instrumentStatusResponse));
+    }
+
+    [HttpPost("{id}/symbols/{symbolId}/vendor-interfaces")]
+    public async Task<ActionResult<ApiResponse<VendorInterfaceSymbolXRef?>>> CreateVendorInterfaceSymbolAsync(Guid id, Guid symbolId,[FromBody] CreateVendorInterfaceSymbolRequest request, CancellationToken cancellationToken = default)
+    {
+        var vendorInterfaceSymbolResponse = await _instrumentService.CreateVendorInterfaceSymbolAsync(symbolId, id, request, cancellationToken);
+
+        if (vendorInterfaceSymbolResponse is null)
+            return NoContent();
+
+        return Ok(ApiResponse<VendorInterfaceSymbolResponse?>.Success(vendorInterfaceSymbolResponse));
     }
 
 }
